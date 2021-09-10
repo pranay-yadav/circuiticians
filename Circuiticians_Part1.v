@@ -8,7 +8,7 @@ always @(w, x, y, z, r6, r7, r8, r9) begin
 // f6 = w'x'y + w'x'z + xy'z + wx'y'z'
 r6 = ((!w)&(!x)&y) | ((!w)&(!x)&z) | (x&(!y)&z) | (w&(!x)&(!y)&(!z));
 // f7 = wxy'z' + w'xy'z + wx'y'z + w'x'yz + w'xyz' + wx'yz'
-r7 =  (w&x&(!y)&(!z)) | ((!w)&x&(!y)&z) | (w&(!x)&(!y)&z) | ((!w)&(!x)&y&z) | ((!w)&x&y&(!z))) | (w&(!x)&y&(!z));
+r7 = (w&x&(!y)&(!z)) | ((!w)&x&(!y)&z) | (w&(!x)&(!y)&z) | ((!w)&(!x)&y&z) | ((!w)&x&y&(!z)) | (w&(!x)&y&(!z));
 // f8 = yz
 r8 = (y&z);
 // f9 = w'x'y'z + w'x'yz' + w'xy'z' + w'xyz + wxy'z + wxyz' + wx'y'z' + wx'yz
@@ -25,15 +25,36 @@ module testbench();
   
   // Loop
 
-  reg [3:0] i; // for looping from 0-15
-  reg a, b, c, d; // for holding the bit values of i
+  reg [4:0] i; // for looping from 0-15
+  reg w, x, y, z; // for holding the bit values of i
 
   wire f6, f7, f8, f9; // hold function return values
 
-  
+  breadboard zap(w, x, y, z, f6, f7, f8, f9);
+
+  initial begin
+    $display("|##|w|x|y|z|f6|f7|f8|f9|");
+    $display("|======================|");
+
+    for (i = 0; i <= 15; i = i + 1) begin
+      w = (i/8) % 2;
+      x = (i/4) % 2;
+      y = (i/2) % 2;
+      z = i % 2;
+
+      #10; // time delay
+
+      $display ("|%2d|%1d|%1d|%1d|%1d| %1d| %1d| %1d| %1d|", i, w, x, y, z, f6, f7, f8, f9);
+		  if(i%4==3) 
+		    $display ("|----------------------|");
+
+    end // end for loop
+    #10;
+    $finish;
+  end // end intial
 
 
-endmodule 
+endmodule // end module testbench 
 
 
 
