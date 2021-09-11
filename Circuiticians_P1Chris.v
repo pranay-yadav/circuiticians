@@ -6,7 +6,7 @@ reg r2, r3, r4, r7;
   always @(w, x, y, z, r2, r3, r4, r7) begin
   
 
-r2 = (w&x&z) | (!w&x&y&z) | (!w&!x&y&!z) | (w&!x&y&z);
+r2 = (w&x&z) | (x&y&z) | (w&y&z) | (w&x&y);
  r3 = (w&z)|(x&y);
 
 r4 = (y&z);
