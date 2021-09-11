@@ -44,7 +44,7 @@ module testbench();
 
       #10; // time delay
 
-      $display ("|%2d|%1d|%1d|%1d|%1d| %1d| %1d| %1d| %1d|", i, w, x, y, z, f4, f5, f6);
+      $display ("|%2d|%1d|%1d|%1d|%1d| %1d| %1d| %1d|", i, w, x, y, z, f4, f5, f6);
 		  if(i%4==3) 
 		    $display ("|-------------------|");
 
