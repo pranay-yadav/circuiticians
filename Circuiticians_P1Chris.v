@@ -7,8 +7,7 @@ reg r2, r3, r4, r7;
   
 
 r2 = (w&x&z) | (!w&x&y&z) | (!w&!x&y&!z) | (w&!x&y&z);
-
-r3 = (w&z)|(x*y);
+ r3 = (w&z)|(x&y);
 
 r4 = (y&z);
 
