@@ -1,10 +1,22 @@
-module breadboard	(w, x, y, z, r6, r7, r8, r9);  
+module breadboard	(w, x, y, z, r0, r1, r2, r3, r4, r5, r6, r7, r8, r9);  
 input w, x, y, z;
-output r6, r7, r8, r9;
-reg r6, r7, r8, r9;
+output r0, r1, r2, r3, r4, r5, r6, r7, r8, r9;
+reg r0, r1, r2, r3, r4, r5, r6, r7, r8, r9;
 
-always @(w, x, y, z, r6, r7, r8, r9) begin
-  
+always @(w, x, y, z, r0, r1, r2, r3, r4, r5, r6, r7, r8, r9) begin
+
+// f0 = wx + wz + xy + yz
+r0 = (w&x) | (w&z) | (x&y) | (y&z);
+// f1 = wx + xz + yz
+r1 = (w&x) | (x&z) | (y&z);
+// f2 = wxz + w'xyz + w'x'yz' + wx'yz
+r2 = (w&x&z) | (x&y&z) | (w&y&z) | (w&x&y);
+// f3 = wz + xy
+r3 = (w&z)|(x&y);
+// f4: yz
+r4 = (y&z);
+// f5: y'z' + w'x'
+r5 = ((!y)&(!z)) | ((!w)&(!x));
 // f6 = w'x'y + w'x'z + xy'z + wx'y'z'
 r6 = ((!w)&(!x)&y) | ((!w)&(!x)&z) | (x&(!y)&z) | (w&(!x)&(!y)&(!z));
 // f7 = wxy'z' + w'xy'z + wx'y'z + w'x'yz + w'xyz' + wx'yz'
@@ -28,13 +40,13 @@ module testbench();
   reg [4:0] i; // for looping from 0-15
   reg w, x, y, z; // for holding the bit values of i
 
-  wire f6, f7, f8, f9; // hold function return values
+  wire f0, f1, f2, f3, f4, f5, f6, f7, f8, f9; // hold function return values
 
-  breadboard zap(w, x, y, z, f6, f7, f8, f9);
+  breadboard zap(w, x, y, z, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9);
 
   initial begin
-    $display("|##|w|x|y|z|f6|f7|f8|f9|");
-    $display("|======================|");
+    $display("|##|w|x|y|z|f0|f1|f2|f3|f4|f5|f6|f7|f8|f9|");
+    $display("|========================================|");
 
     for (i = 0; i <= 15; i = i + 1) begin
       w = (i/8) % 2;
@@ -44,9 +56,9 @@ module testbench();
 
       #10; // time delay
 
-      $display ("|%2d|%1d|%1d|%1d|%1d| %1d| %1d| %1d| %1d|", i, w, x, y, z, f6, f7, f8, f9);
+      $display ("|%2d|%1d|%1d|%1d|%1d| %1d| %1d| %1d| %1d| %1d| %1d| %1d| %1d| %1d| %1d|", i, w, x, y, z, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9);
 		  if(i%4==3) 
-		    $display ("|----------------------|");
+		$display ("|----------------------------------------|");
 
     end // end for loop
     #10;
@@ -55,37 +67,3 @@ module testbench();
 
 
 endmodule // end module testbench 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//Dr. Becker's cheat sheet of what is wrong in the code.
-//The loop control variable can never reach 16, it is only 4 bits. Add another bit
-//There needs to be a time dealy, such a #5, inside the for loop
