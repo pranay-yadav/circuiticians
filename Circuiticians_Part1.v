@@ -1,3 +1,11 @@
+/*
+  Circuiticians - Project Part 1 Verilog Code
+
+  Jacob Medel, Christopher Clark, Donavin Sip, Pranay Yadav, Carlos Moran, Antonio Ramaj
+  
+  CS 4341.001 Fall 2021 - University of Texas at Dallas
+*/
+
 module breadboard	(w, x, y, z, r0, r1, r2, r3, r4, r5, r6, r7, r8, r9);  
 input w, x, y, z;
 output r0, r1, r2, r3, r4, r5, r6, r7, r8, r9;
