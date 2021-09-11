@@ -30,7 +30,7 @@ module testbench();
 
   wire f4, f5, f6;	// hold function return values
 
-  breadboard zap(w, x, y, z, f2, f3, f4, f7);
+  breadboard zap(w, x, y, z, f4, f5, f6);
 
   initial begin
     $display("|##|w|x|y|z|f4|f5|f6|");
