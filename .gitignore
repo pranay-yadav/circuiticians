@@ -1,2 +1,5 @@
 # verilog .out file
 *.out
+
+# Other docs
+*.pdf
