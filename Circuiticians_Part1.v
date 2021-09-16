@@ -6,18 +6,17 @@
  CS 4341.001 Fall 2021 - University of Texas at Dallas
  */
 
-//Define breadboard module
+
 module breadboard (w, x, y, z,
                    r0, r1, r2,
                    r3, r4, r5,
                    r6, r7, r8, r9);
    
-   //4 inputs, 3 outputs as memory registers
+   
    input w, x, y, z;
    output r0, r1, r2, r3, r4, r5, r6, r7, r8, r9;
    reg    r0, r1, r2, r3, r4, r5, r6, r7, r8, r9;
 
-   //Always execute when inputs change
    always @(w, x, y, z, r0, r1, r2, r3, r4, r5, r6, r7, r8, r9) begin
 
       // f0 = wx + wz + xy + yz
@@ -43,19 +42,15 @@ module breadboard (w, x, y, z,
 
    end
 
-endmodule                           
+endmodule // end module breadboard                
 
 
 module testbench();
 
-   // Main code goes here
-   
-   // Loop
-
    reg [4:0] i; // for looping from 0-15
-   reg       w, x, y, z; // for holding the bit values of i
+   reg w, x, y, z; // for holding the bit values of i
 
-   wire      f0, f1, f2, f3, f4, f5, f6, f7, f8, f9; // hold function return values
+   wire f0, f1, f2, f3, f4, f5, f6, f7, f8, f9; // hold function return values
 
    breadboard zap(w, x, y, z, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9);
 
