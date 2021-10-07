@@ -292,7 +292,7 @@ module BreadBoard(IN1, IN2, OP, OUT, ERR);
 	output [31:0] OUT;
 	output [1:0] ERR;
 
-	// Wires and Registers
+	// Wires
 	wire [15:0] IN1; // Input 1
 	wire [15:0] IN2; // Input 2
 	wire [3:0] OP; // Operation
@@ -306,40 +306,30 @@ module BreadBoard(IN1, IN2, OP, OUT, ERR);
 	wire CAR; // Carry
 	wire OVF; // Overflow
 
-	AddSub addersubtractor(IN1, IN2, M, S, CAR, OVF);
-
 	//Mul
 	wire [31:0] P; // Product
-	
-	Mul multiplier(IN1, IN2, P);
 
 	//Div
 	wire [31:0] Q; // Quotient
 	wire DE; // Divide Error
 
-	Div divider(IN1, IN2, Q, DE);
-
 	//Mod
 	wire [31:0] R; // Remainder
 	wire ME; // Mod Error
 
-	Mod modulo(IN1, IN2, R, ME);
-
 	//Dec
 	wire [15:0] SEL; // One-hot Select
-
-	Dec decoder(OP, SEL);
 
 	//Mux
 	wire [15:0][31:0] channels;
 	
-	assign channels[ 0] = S; // addition
-	assign channels[ 1] = S; // subtraction 
-	assign channels[ 2] = P; // multiplication
-	assign channels[ 3] = Q; // division
-	assign channels[ 4] = R; // mod
-	assign channels[ 5] = 0; // GROUND
-	assign channels[ 6] = 0; // GROUND
+	assign channels[ 0] = 0; // GROUND
+	assign channels[ 1] = 0; // GROUND 
+	assign channels[ 2] = S; // add
+	assign channels[ 3] = S; // sub
+	assign channels[ 4] = P; // mul
+	assign channels[ 5] = Q; // div
+	assign channels[ 6] = R; // mod
 	assign channels[ 7] = 0; // GROUND
 	assign channels[ 8] = 0; // GROUND
 	assign channels[ 9] = 0; // GROUND
@@ -350,32 +340,31 @@ module BreadBoard(IN1, IN2, OP, OUT, ERR);
 	assign channels[14] = 0; // GROUND
 	assign channels[15] = 0; // GROUND
 
-	Mux multiplexer(channels, SEL, OUT); // select the output from the channels
-	
-	// Set value of registers & outputs
+	// Module Instantiations
 
+	AddSub addersubtractor(IN1, IN2, M, S, CAR, OVF);
+	Mul multiplier(IN1, IN2, P);
+	Div divider(IN1, IN2, Q, DE);
+	Mod modulo(IN1, IN2, R, ME);
+	Dec decoder(OP, SEL);
+	Mux multiplexer(channels, SEL, OUT); 
+	
+	// Set value of outputs
 	
 	assign DZE = DE | ME;
 	assign ERR[0] = OVF;
 	assign ERR[1] = DZE;
-	assign M = ~OP[3] & ~OP[2] & ~OP[1] & OP[0]; // 0001 -> Subtraction
+	assign M = ~OP[3] & ~OP[2] & OP[1] & OP[0]; // 0011 -> Subtraction
 	
-	/*
-	always @(*) begin
-	  	M = OP[0] | OP[1] | OP[2] | OP[3];
-		ERR[0] = OVF; // overflow bit
-		ERR[1] = DE | ME; // divide by zero bit
-	end*/
-
 endmodule
 
 
 module TestBench();
+	// Inputs
 	reg [15:0] IN1; 
 	reg [15:0] IN2; 
 	reg [3:0] OP;
-
-	
+	// Outputs
 	wire [31:0] OUT;
 	wire [1:0] ERR;
 
@@ -392,31 +381,31 @@ module TestBench();
 		$display("|=======================================================================================================================================================|");
 
 		// Add
-		assign OP = 4'b0000;
+		assign OP = 4'b0010;
 		#100
 		$display("| IN1: %b (%2d)\t| IN2: %b (%d)\t| OP: %b (ADD)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
 
 		// Subtract
-		assign OP = 4'b0001;
+		assign OP = 4'b0011;
 		#100
 		$display("| IN1: %b (%2d)\t| IN2: %b (%d)\t| OP: %b (SUB)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
 
 		// Multiply
-		assign OP = 4'b0010;
+		assign OP = 4'b0100;
 		#100
 		$display("| IN1: %b (%2d)\t| IN2: %b (%d)\t| OP: %b (MUL)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
 
 		// Divide
 		assign IN1 = 16'b0000000000001011; // 11
 		assign IN2 = 16'b0000000000000000; // 51
-		assign OP = 4'b0011;
+		assign OP = 4'b0101;
 		#100
 		$display("| IN1: %b (%2d)\t| IN2: %b (%d)\t| OP: %b (DIV)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
 
 		// Modulo
 		assign IN1 = 16'b0000000000001011; // 11
 		assign IN2 = 16'b0000000000110011; // 51
-		assign OP = 4'b0100;
+		assign OP = 4'b0110;
 		#100
 		$display("| IN1: %b (%2d)\t| IN2: %b (%d)\t| OP: %b (MOD)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
 
@@ -428,27 +417,27 @@ module TestBench();
 		assign IN2 = 16'b1011100100110011; // 47411
 		#100
 		// Add
-		assign OP = 4'b0000;
+		assign OP = 4'b0010;
 		#100
 		$display("| IN1: %b (%2d)\t| IN2: %b (%d)\t| OP: %b (ADD)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
 
 		// Subtract
-		assign OP = 4'b0001;
+		assign OP = 4'b0011;
 		#100
 		$display("| IN1: %b (%2d)\t| IN2: %b (%d)\t| OP: %b (SUB)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
 
 		// Multiply
-		assign OP = 4'b0010;
+		assign OP = 4'b0100;
 		#100
 		$display("| IN1: %b (%2d)\t| IN2: %b (%d)\t| OP: %b (MUL)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
 
 		// Divide
-		assign OP = 4'b0011;
+		assign OP = 4'b0101;
 		#100
 		$display("| IN1: %b (%2d)\t| IN2: %b (%d)\t| OP: %b (DIV)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
 
 		// Modulo
-		assign OP = 4'b0100;
+		assign OP = 4'b0110;
 		#100
 		$display("| IN1: %b (%2d)\t| IN2: %b (%d)\t| OP: %b (MOD)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
 
