@@ -68,8 +68,8 @@ module AddSub(IN1, IN2, M, S, CAR, OVF);
 	// Sign-extended inputs
 	wire [31:0] eIN1;
 	wire [31:0] eIN2;
-	assign eIN1 = {{16{IN1[15]}}, IN1}; // sign extend IN1 to 32-bits
-	assign eIN2 = {{16{IN2[15]}}, IN2}; // sign extend IN2 to 32-bits
+	assign eIN1 = {{16{1'b0}}, IN1}; // extend IN1 to 32-bits
+	assign eIN2 = {{16{1'b0}}, IN2}; // extend IN2 to 32-bits
 
 	// Interfaces between Full Adders
 	wire [32:0] c; // carries
@@ -109,31 +109,128 @@ module AddSub(IN1, IN2, M, S, CAR, OVF);
 	FullAdder F30(eIN1[30], eIN2[30]^M, c[30], c[31], S[30]);
 	FullAdder F31(eIN1[31], eIN2[31]^M, c[31], c[32], S[31]);
 
-	// other outputs
+	// carry
 	assign CAR = c[32];
-	assign OVF = c[32] ^ c[31]; // if last two carries are different, then there was overflow
-
+	// if highest bits of IN1 and IN2 are the same AND highest bit of S is different, then there was overflow
+	assign OVF = ~(eIN1[31]^eIN2[31]) & (eIN1[31]^S[31] | eIN2[31]^S[31]); 
+	
 endmodule
 
-/*
+
 // Multiplication
 module Mul(IN1, IN2, P);
 	input [15:0] IN1; // input 1
 	input [15:0] IN2; // input 2
 	output [31:0] P; // product of IN1 * IN2
+	
+	// Registers to work with data
+	reg [31:0] regP;
+	reg [6:0] i;
+	reg [5:0] j;
+	reg carry;
+	reg [15:0] sumReg;
+	reg [15:0] shiftedSum;
+	reg [31:0] prodReg;
+	reg [15:0] regA;
+	reg [15:0] regB;
+
+	wire [16:0] c; // carry wires
+	wire [15:0] sum; // sum wires
+
+	FullAdder F0 (regA[ 0], regB[ 0], carry, c[ 1], sum[ 0]);
+	FullAdder F1 (regA[ 1], regB[ 1], c[ 1], c[ 2], sum[ 1]);
+	FullAdder F2 (regA[ 2], regB[ 2], c[ 2], c[ 3], sum[ 2]);
+	FullAdder F3 (regA[ 3], regB[ 3], c[ 3], c[ 4], sum[ 3]);
+	FullAdder F4 (regA[ 4], regB[ 4], c[ 4], c[ 5], sum[ 4]);
+	FullAdder F5 (regA[ 5], regB[ 5], c[ 5], c[ 6], sum[ 5]);
+	FullAdder F6 (regA[ 6], regB[ 6], c[ 6], c[ 7], sum[ 6]);
+	FullAdder F7 (regA[ 7], regB[ 7], c[ 7], c[ 8], sum[ 7]);
+	FullAdder F8 (regA[ 8], regB[ 8], c[ 8], c[ 9], sum[ 8]);
+	FullAdder F9 (regA[ 9], regB[ 9], c[ 9], c[10], sum[ 9]);
+	FullAdder F10(regA[10], regB[10], c[10], c[11], sum[10]);
+	FullAdder F11(regA[11], regB[11], c[11], c[12], sum[11]);
+	FullAdder F12(regA[12], regB[12], c[12], c[13], sum[12]);
+	FullAdder F13(regA[13], regB[13], c[13], c[14], sum[13]);
+	FullAdder F14(regA[14], regB[14], c[14], c[15], sum[14]);
+	FullAdder F15(regA[15], regB[15], c[15], c[16], sum[15]);
 
 	
 
+	always @(*) begin
+		sumReg = {16{IN1[0]}} & IN2;
+		carry = 0;
+	
+		regP[0] = IN1[0] & IN2[0];
+		for (i = 0; i < 15; i = i + 1) begin
+			j = i + 1;
+			regA = {16{IN1[j]}} & IN2;
+			regB = {carry, sumReg[15:1]};
+			#1 // time delay to perform addition
+			carry = c[16];
+			sumReg = sum;
+			regP[j] = sum[0];
+			
+		end
+		#60
+		regP = {{carry, sumReg[15:1]}, regP[15:0]};
+		
+		
+	end
+
+
+	assign P = regP;
+
 endmodule
+
 
 // Division
 module Div(IN1, IN2, Q, DE);
+	input [15:0] IN1;
+	input [15:0] IN2;
+	output [31:0] Q;
+	output DE;
 
+	reg regDE;
+	reg [31:0] regQ;
+
+	assign DE = regDE;
+	assign Q = regQ; 
+
+	always @(*) begin
+	  	if (~(|IN2)) begin // IN2 is all 0's
+			regDE = 1;
+			regQ = 0;
+		end
+		else begin // IN2 is not 0
+		  	regDE = 0;
+			regQ = IN1 / IN2;
+		end
+	end
 endmodule
 
 // Modulo
-module Mod(IN1, IN2, R, ME)
+module Mod(IN1, IN2, R, ME);
+	input [15:0] IN1;
+	input [15:0] IN2;
+	output [31:0] R;
+	output ME;
 
+	reg regME;
+	reg [31:0] regR;
+
+	assign ME = regME;
+	assign R = regR;
+
+	always @(*) begin
+	  	if (~(|IN2)) begin // IN2 is all 0s
+			regME = 1;
+			regR = 0;
+		end
+		else begin // IN2 is not 0
+		  	regME = 0;
+			regR = IN1 % IN2;
+		end
+	end
 endmodule
 
 // Decoder
@@ -162,10 +259,31 @@ module Dec(OP, SEL);
 endmodule
 
 // Multiplexer
+// 16-channel 32-bit multiplexer with 16-bit one-hot selector
 module Mux(channels, SEL, OUT);
+	input [15:0][31:0] channels;
+	input [15:0] SEL;
+	output [31:0] OUT;
+
+	assign OUT = 	({32{SEL[ 0]}} & channels[ 0]) | 
+               		({32{SEL[ 1]}} & channels[ 1]) |
+			   		({32{SEL[ 2]}} & channels[ 2]) |
+			   		({32{SEL[ 3]}} & channels[ 3]) |
+			   		({32{SEL[ 4]}} & channels[ 4]) |
+			   		({32{SEL[ 5]}} & channels[ 5]) |
+			   		({32{SEL[ 6]}} & channels[ 6]) |
+			   		({32{SEL[ 7]}} & channels[ 7]) |
+			   		({32{SEL[ 8]}} & channels[ 8]) |
+			   		({32{SEL[ 9]}} & channels[ 9]) |
+			   		({32{SEL[10]}} & channels[10]) |
+			   		({32{SEL[11]}} & channels[11]) |
+			   		({32{SEL[12]}} & channels[12]) |
+			   		({32{SEL[13]}} & channels[13]) | 
+               		({32{SEL[14]}} & channels[14]) |
+               		({32{SEL[15]}} & channels[15]) ;
 
 endmodule
-*/
+
 
 module BreadBoard(IN1, IN2, OP, OUT, ERR);
 	input [15:0] IN1;
@@ -175,49 +293,167 @@ module BreadBoard(IN1, IN2, OP, OUT, ERR);
 	output [1:0] ERR;
 
 	// Wires and Registers
-	wire [15:0] IN1;
-	wire [15:0] IN2;
-	wire [3:0] OP;
-	reg [31:0] OUT;
-	reg [1:0] ERR;
+	wire [15:0] IN1; // Input 1
+	wire [15:0] IN2; // Input 2
+	wire [3:0] OP; // Operation
+	wire [31:0] OUT; // Output
+	wire [1:0] ERR; // Error
+	wire [1:0] DZE; // Divide by Zero Error
 
+	//AddSub
+	wire M; // Mode
+	wire [31:0] S; // Sum
+	wire CAR; // Carry
+	wire OVF; // Overflow
 
-	//AddSub Variables
-	reg M;
-	wire [31:0] S;
-	wire CAR;
-	wire OVF;
+	AddSub addersubtractor(IN1, IN2, M, S, CAR, OVF);
 
-	AddSub adder(IN1, IN2, M, S, CAR, OVF);
+	//Mul
+	wire [31:0] P; // Product
 	
+	Mul multiplier(IN1, IN2, P);
+
+	//Div
+	wire [31:0] Q; // Quotient
+	wire DE; // Divide Error
+
+	Div divider(IN1, IN2, Q, DE);
+
+	//Mod
+	wire [31:0] R; // Remainder
+	wire ME; // Mod Error
+
+	Mod modulo(IN1, IN2, R, ME);
+
+	//Dec
+	wire [15:0] SEL; // One-hot Select
+
+	Dec decoder(OP, SEL);
+
+	//Mux
+	wire [15:0][31:0] channels;
+	
+	assign channels[ 0] = S; // addition
+	assign channels[ 1] = S; // subtraction 
+	assign channels[ 2] = P; // multiplication
+	assign channels[ 3] = Q; // division
+	assign channels[ 4] = R; // mod
+	assign channels[ 5] = 0; // GROUND
+	assign channels[ 6] = 0; // GROUND
+	assign channels[ 7] = 0; // GROUND
+	assign channels[ 8] = 0; // GROUND
+	assign channels[ 9] = 0; // GROUND
+	assign channels[10] = 0; // GROUND
+	assign channels[11] = 0; // GROUND
+	assign channels[12] = 0; // GROUND
+	assign channels[13] = 0; // GROUND
+	assign channels[14] = 0; // GROUND
+	assign channels[15] = 0; // GROUND
+
+	Mux multiplexer(channels, SEL, OUT); // select the output from the channels
 	
 	// Set value of registers & outputs
+
+	
+	assign DZE = DE | ME;
+	assign ERR[0] = OVF;
+	assign ERR[1] = DZE;
+	assign M = ~OP[3] & ~OP[2] & ~OP[1] & OP[0]; // 0001 -> Subtraction
+	
+	/*
 	always @(*) begin
 	  	M = OP[0] | OP[1] | OP[2] | OP[3];
-		OUT = S; 
-		ERR[0] = OVF;
-		ERR[1] = 0;
-	end
+		ERR[0] = OVF; // overflow bit
+		ERR[1] = DE | ME; // divide by zero bit
+	end*/
 
 endmodule
 
 
 module TestBench();
-	reg [15:0] IN1;
-	reg [15:0] IN2;
+	reg [15:0] IN1; 
+	reg [15:0] IN2; 
 	reg [3:0] OP;
 
+	
 	wire [31:0] OUT;
 	wire [1:0] ERR;
 
 	BreadBoard BB(IN1, IN2, OP, OUT, ERR);
 
 	initial begin
-	  	assign IN1 = 16'b1011000111100000;
-		assign IN2 = 16'b0111111100011101;
+
+		// Integers less than 250
+
+	 	assign IN1 = 16'b0000000000001011; // 11
+		assign IN2 = 16'b0000000000110011; // 51
+		$display("=========================================================================================================================================================");
+		$display("| Input IN1\t\t\t\t\t\t| Input IN2\t\t\t\t\t\t| Operation\t\t\t| Output OUT\t\t\t\t\t\t\t\t\t\t\t| Error\t\t|");
+		$display("|=======================================================================================================================================================|");
+
+		// Add
+		assign OP = 4'b0000;
+		#100
+		$display("| IN1: %b (%2d)\t| IN2: %b (%d)\t| OP: %b (ADD)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
+
+		// Subtract
 		assign OP = 4'b0001;
-		#10
-		$display("IN1: %b (%2d)\tIN2: %b (%d)\t OP :%b\tOUT: %b\tERR: %b",IN1,IN1,IN2,IN2,OP,OUT,ERR);
+		#100
+		$display("| IN1: %b (%2d)\t| IN2: %b (%d)\t| OP: %b (SUB)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
+
+		// Multiply
+		assign OP = 4'b0010;
+		#100
+		$display("| IN1: %b (%2d)\t| IN2: %b (%d)\t| OP: %b (MUL)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
+
+		// Divide
+		assign IN1 = 16'b0000000000001011; // 11
+		assign IN2 = 16'b0000000000000000; // 51
+		assign OP = 4'b0011;
+		#100
+		$display("| IN1: %b (%2d)\t| IN2: %b (%d)\t| OP: %b (DIV)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
+
+		// Modulo
+		assign IN1 = 16'b0000000000001011; // 11
+		assign IN2 = 16'b0000000000110011; // 51
+		assign OP = 4'b0100;
+		#100
+		$display("| IN1: %b (%2d)\t| IN2: %b (%d)\t| OP: %b (MOD)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
+
+		$display("|=======================================================================================================================================================|");
+
+		// Integers greater than 16000
+
+		assign IN1 = 16'b1111001010001011; // 62091
+		assign IN2 = 16'b1011100100110011; // 47411
+		#100
+		// Add
+		assign OP = 4'b0000;
+		#100
+		$display("| IN1: %b (%2d)\t| IN2: %b (%d)\t| OP: %b (ADD)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
+
+		// Subtract
+		assign OP = 4'b0001;
+		#100
+		$display("| IN1: %b (%2d)\t| IN2: %b (%d)\t| OP: %b (SUB)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
+
+		// Multiply
+		assign OP = 4'b0010;
+		#100
+		$display("| IN1: %b (%2d)\t| IN2: %b (%d)\t| OP: %b (MUL)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
+
+		// Divide
+		assign OP = 4'b0011;
+		#100
+		$display("| IN1: %b (%2d)\t| IN2: %b (%d)\t| OP: %b (DIV)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
+
+		// Modulo
+		assign OP = 4'b0100;
+		#100
+		$display("| IN1: %b (%2d)\t| IN2: %b (%d)\t| OP: %b (MOD)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
+
+		$display("=========================================================================================================================================================");
+
 	end
 
 endmodule  
