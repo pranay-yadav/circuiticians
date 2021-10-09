@@ -126,18 +126,18 @@ module Mul(IN1, IN2, P);
 	// Registers to work with data
 	reg [31:0] regP;
 	reg [6:0] i;
-	reg [5:0] j;
 	reg carry;
+	reg carryOut;
 	reg [15:0] sumReg;
-	reg [15:0] shiftedSum;
-	reg [31:0] prodReg;
 	reg [15:0] regA;
 	reg [15:0] regB;
 
-	wire [16:0] c; // carry wires
-	wire [15:0] sum; // sum wires
+	wire [17:0] c; // carry wires
+	wire [16:0] sum; // sum wires
 
-	FullAdder F0 (regA[ 0], regB[ 0], carry, c[ 1], sum[ 0]);
+	assign c[0] = 1'b0;
+
+	FullAdder F0 (regA[ 0], regB[ 0], c[ 0], c[ 1], sum[ 0]);
 	FullAdder F1 (regA[ 1], regB[ 1], c[ 1], c[ 2], sum[ 1]);
 	FullAdder F2 (regA[ 2], regB[ 2], c[ 2], c[ 3], sum[ 2]);
 	FullAdder F3 (regA[ 3], regB[ 3], c[ 3], c[ 4], sum[ 3]);
@@ -153,7 +153,7 @@ module Mul(IN1, IN2, P);
 	FullAdder F13(regA[13], regB[13], c[13], c[14], sum[13]);
 	FullAdder F14(regA[14], regB[14], c[14], c[15], sum[14]);
 	FullAdder F15(regA[15], regB[15], c[15], c[16], sum[15]);
-
+	
 	
 
 	always @(*) begin
@@ -161,14 +161,14 @@ module Mul(IN1, IN2, P);
 		carry = 0;
 	
 		regP[0] = IN1[0] & IN2[0];
-		for (i = 0; i < 15; i = i + 1) begin
-			j = i + 1;
-			regA = {16{IN1[j]}} & IN2;
+		for (i = 1; i <= 15; i = i + 1) begin
+			
+			regA = {16{IN1[i]}} & IN2;
 			regB = {carry, sumReg[15:1]};
 			#1 // time delay to perform addition
 			carry = c[16];
 			sumReg = sum;
-			regP[j] = sum[0];
+			regP[i] = sum[0];
 			
 		end
 		#60
@@ -413,8 +413,8 @@ module TestBench();
 
 		// Integers greater than 16000
 
-		assign IN1 = 16'b1111001010001011; // 62091
-		assign IN2 = 16'b1011100100110011; // 47411
+		assign IN1 = 16'b1111011100100111; // 62091
+		assign IN2 = 16'b1011010100001100; // 47411
 		#100
 		// Add
 		assign OP = 4'b0010;
