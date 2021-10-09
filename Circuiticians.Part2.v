@@ -375,40 +375,40 @@ module TestBench();
 
 	 	assign IN1 = 16'b0000000000001011; // 11
 		assign IN2 = 16'b0000000000110011; // 51
-		$display("=========================================================================================================================================================");
-		$display("| Input IN1\t\t\t\t\t\t| Input IN2\t\t\t\t\t\t| Operation\t\t\t| Output OUT\t\t\t\t\t\t\t\t\t\t\t| Error\t\t|");
-		$display("|=======================================================================================================================================================|");
+		$display("=================================================================================================================================================");
+		$display("| Input 1                       | Input 2                       | Operation      | Output                                             | Error   |");
+		$display("|===============================================================================================================================================|");
 
 		// Add
 		assign OP = 4'b0010;
 		#100
-		$display("| IN1: %b (%d)\t| IN2: %b (%d)\t| OP: %b (ADD)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
+		$display("| IN1: %b (%d) | IN2: %b (%d) | OP: %b (ADD) | OUT: %b (%d) | ERR: %b |",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
 
 		// Subtract
 		assign OP = 4'b0011;
 		#100
-		$display("| IN1: %b (%d)\t| IN2: %b (%d)\t| OP: %b (SUB)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
+		$display("| IN1: %b (%d) | IN2: %b (%d) | OP: %b (SUB) | OUT: %b (%d) | ERR: %b |",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
 
 		// Multiply
 		assign OP = 4'b0100;
 		#100
-		$display("| IN1: %b (%d)\t| IN2: %b (%d)\t| OP: %b (MUL)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
+		$display("| IN1: %b (%d) | IN2: %b (%d) | OP: %b (MUL) | OUT: %b (%d) | ERR: %b |",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
 
 		// Divide
 		assign IN1 = 16'b0000000000001011; // 11
 		assign IN2 = 16'b0000000000000000; // 51
 		assign OP = 4'b0101;
 		#100
-		$display("| IN1: %b (%d)\t| IN2: %b (%d)\t| OP: %b (DIV)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
+		$display("| IN1: %b (%d) | IN2: %b (%d) | OP: %b (DIV) | OUT: %b (%d) | ERR: %b |",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
 
 		// Modulo
 		assign IN1 = 16'b0000000000001011; // 11
 		assign IN2 = 16'b0000000000110011; // 51
 		assign OP = 4'b0110;
 		#100
-		$display("| IN1: %b (%d)\t| IN2: %b (%d)\t| OP: %b (MOD)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
+		$display("| IN1: %b (%d) | IN2: %b (%d) | OP: %b (MOD) | OUT: %b (%d) | ERR: %b |",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
 
-		$display("|=======================================================================================================================================================|");
+		$display("|===============================================================================================================================================|");
 
 		// Integers greater than 16000
 
@@ -418,29 +418,29 @@ module TestBench();
 		// Add
 		assign OP = 4'b0010;
 		#100
-		$display("| IN1: %b (%d)\t| IN2: %b (%d)\t| OP: %b (ADD)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
+		$display("| IN1: %b (%d) | IN2: %b (%d) | OP: %b (ADD) | OUT: %b (%d) | ERR: %b |",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
 
 		// Subtract
 		assign OP = 4'b0011;
 		#100
-		$display("| IN1: %b (%d)\t| IN2: %b (%d)\t| OP: %b (SUB)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
+		$display("| IN1: %b (%d) | IN2: %b (%d) | OP: %b (SUB) | OUT: %b (%d) | ERR: %b |",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
 
 		// Multiply
 		assign OP = 4'b0100;
 		#100
-		$display("| IN1: %b (%d)\t| IN2: %b (%d)\t| OP: %b (MUL)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
+		$display("| IN1: %b (%d) | IN2: %b (%d) | OP: %b (MUL) | OUT: %b (%d) | ERR: %b |",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
 
 		// Divide
 		assign OP = 4'b0101;
 		#100
-		$display("| IN1: %b (%d)\t| IN2: %b (%d)\t| OP: %b (DIV)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
+		$display("| IN1: %b (%d) | IN2: %b (%d) | OP: %b (DIV) | OUT: %b (%d) | ERR: %b |",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
 
 		// Modulo
 		assign OP = 4'b0110;
 		#100
-		$display("| IN1: %b (%d)\t| IN2: %b (%d)\t| OP: %b (MOD)\t| OUT: %b (%d)\t| ERR: %b\t|",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
+		$display("| IN1: %b (%d) | IN2: %b (%d) | OP: %b (MOD) | OUT: %b (%d) | ERR: %b |",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
 
-		$display("=========================================================================================================================================================");
+		$display("=================================================================================================================================================");
 
 	end
 
