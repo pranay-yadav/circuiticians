@@ -127,7 +127,6 @@ module Mul(IN1, IN2, P);
 	reg [31:0] regP;
 	reg [6:0] i;
 	reg carry;
-	reg carryOut;
 	reg [15:0] sumReg;
 	reg [15:0] regA;
 	reg [15:0] regB;
