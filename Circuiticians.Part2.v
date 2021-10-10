@@ -412,8 +412,8 @@ module TestBench();
 
 		// Integers greater than 16000
 
-		assign IN1 = 16'b1111011100100111; // 62091
-		assign IN2 = 16'b1011010100001100; // 47411
+		assign IN1 = 16'b1111011100100111; // 63271
+		assign IN2 = 16'b1011010100001100; // 46348
 		#100
 		// Add
 		assign OP = 4'b0010;
