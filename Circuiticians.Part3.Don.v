@@ -321,6 +321,9 @@ module BreadBoard(CLK, IN1, OP, OUT, ERR);
 	// - Changes -
 	reg [31:0] OUT;     // Output
 	
+	reg [7:0] newVal;
+	wire [7:0] oldVal;
+	
 	// No-Op
 	wire[15:0] FBK;     // Feedback wire as IN1 for operations
 	wire[31:0] oVal;    // wire out
@@ -349,15 +352,12 @@ module BreadBoard(CLK, IN1, OP, OUT, ERR);
 	//Mux
 	wire [15:0][31:0] channels;
 	// - Changes -
-	wire [31:0] RES = 32'b0;    // Reset, connected to ground
-	wire [31:0] D;              // output of MUX
+	wire [31:0] PRE = {32{1'b1}};   // Preset, connected to VCC
+	wire [31:0] RES = 32'd0;        // Reset, connected to ground
+	wire [31:0] D;                  // output of MUX
 	// - Changes -
 	
-	// - Changes -
-	DFF #(32) Acc(CLK, D, oVal);     // Accumulator between MUX and Output
-	// - Changes -
-	
-	assign channels[ 0] = OUT; // No-Operation
+	assign channels[ 0] = oVal; // No-Operation
 	assign channels[ 1] = 0; // GROUND 
 	assign channels[ 2] = S; // add
 	assign channels[ 3] = S; // sub
@@ -371,12 +371,12 @@ module BreadBoard(CLK, IN1, OP, OUT, ERR);
 	assign channels[11] = 0; // GROUND
 	assign channels[12] = 0; // GROUND
 	assign channels[13] = 0; // GROUND
-	assign channels[14] = 0; // GROUND
+	assign channels[14] = PRE; // PRESET
 	assign channels[15] = RES; // RESET
 	
 	// - Changes -
 	//assign IN2 = 16'b0;         // test: to get last 16-bits of OUT
-	assign FBK = OUT[15:0];     // Feedback
+	assign FBK = oVal[15:0];     // Feedback
 	// - Changes -
 
 	// Module Instantiations
@@ -386,7 +386,10 @@ module BreadBoard(CLK, IN1, OP, OUT, ERR);
 	Div divider(IN1, FBK, Q, DE);
 	Mod modulo(IN1, FBK, R, ME);
 	Dec decoder(OP, SEL);
-	Mux multiplexer(channels, SEL, D); 
+	Mux multiplexer(channels, SEL, D);
+	// - Changes -
+	DFF #(32) Acc(CLK, D, oVal);     // Accumulator between MUX and Output
+	// - Changes -
 	
 	// Set value of outputs
 	
@@ -395,13 +398,20 @@ module BreadBoard(CLK, IN1, OP, OUT, ERR);
 	assign ERR[1] = DZE;
 	assign M = ~OP[3] & ~OP[2] & OP[1] & OP[0]; // 0011 -> Subtraction
 	
+//	always @(*)  
+//    begin
+//        OUT = D;
+//        newVal = OUT;
+//    end
+	
 endmodule
 
 
 module TestBench();
 	// Inputs
 	reg [15:0] IN1; 
-	reg [15:0] IN2; 
+	//reg [15:0] IN2; 
+	//reg [15:0] FBK;
 	reg [3:0] OP;
 	// Outputs
 	wire [31:0] OUT;
@@ -430,6 +440,7 @@ module TestBench();
 	initial begin
         // Testing
 	 	assign IN1 = 16'b0000000000000000; // 0
+	 	//assign FBK = 16'b0000000000000000; // 0
 		#100
 		$display("=================================================================================================================================================");
 		$display("| Input 1                       | Feedback                      | Operation      | Output                                             | Error   |");
@@ -441,18 +452,20 @@ module TestBench();
 		$display("| IN1: %b (%d) | FBK: %b (%d) | OP: %b (RES) | OUT: %b (%d) | ERR: %b |",IN1,IN1,BB.FBK,BB.FBK,OP,OUT,OUT,ERR);
 		
 		// Add
-		assign IN1 = 16'b0000000000001011; // 11
+		//assign FBK = OUT; // 0
+		assign IN1 = 16'b0000000000001010; // 10
 		assign OP = 4'b0010;
 		#100
 		$display("| IN1: %b (%d) | FBK: %b (%d) | OP: %b (ADD) | OUT: %b (%d) | ERR: %b |",IN1,IN1,BB.FBK,BB.FBK,OP,OUT,OUT,ERR);
 
 		#100
 		
-		// Add
+		// Mult
+		//assign FBK = OUT; // 11
 		assign IN1 = 16'b0000000000001111; // 15
-		assign OP = 4'b0010;
+		assign OP = 4'b0100;
 		#100
-		$display("| IN1: %b (%d) | FBK: %b (%d) | OP: %b (ADD) | OUT: %b (%d) | ERR: %b |",IN1,IN1,BB.FBK,BB.FBK,OP,OUT,OUT,ERR);
+		$display("| IN1: %b (%d) | FBK: %b (%d) | OP: %b (MUL) | OUT: %b (%d) | ERR: %b |",IN1,IN1,BB.FBK,BB.FBK,OP,OUT,OUT,ERR);
 		$display("|===============================================================================================================================================|");
 		
         $finish;
