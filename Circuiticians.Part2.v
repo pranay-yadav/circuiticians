@@ -247,13 +247,12 @@ module DFF(CLK, D, Q);
 
 endmodule
 
-// Accumulator
+// Accumulator - 32 bit Register of D Flip Flops
 module Acc(CLK, D, OUT);
 	input CLK;
 	input [31:0] D;
 	output [31:0] OUT;
-	wire [31:0] Q;
-	wire [31:0] A;
+
 	DFF #(32) dff32(CLK, D, OUT); // chain of 32 D flip flops
 
 endmodule
@@ -324,8 +323,8 @@ module BreadBoard(CLK, IN, OP, OUT, ERR);
 	wire [31:0] OUT; // Output
 	wire [1:0] ERR; // Error
 	wire [1:0] DZE; // Divide by Zero Error
-	wire [16:0] RES; // Reset
-	wire [16:0] PRE; // Preset
+	wire [31:0] RES; // Reset
+	wire [31:0] PRE; // Preset
 
 	//AddSub
 	wire M; // Mode
@@ -417,28 +416,41 @@ module TestBench();
 
 	// Stimulus
 	initial begin
-		#5; // Allow clock to start, stagger displays
+		$display("==============================================");
+		#3; // Allow clock to start, stagger displays
 
 		// Reset
 		IN = 16'b0000000000000001;
 		OP = 4'b1111; 
 		#10;
-		$display("Reset");
-		$display("Output: %b", OUT);
-		
+		$display("OP:  Reset");
+		$display("OUT: %b", OUT);
+		$display("==============================================");
+
 		// Reset
 		IN = 16'b0000000000000001;
 		OP = 4'b0010; 
 		#10;
-		$display("Add");
-		$display("Output: %b", OUT);
+		$display("OP:  Add");
+		$display("OUT: %b", OUT);
+		$display("==============================================");
 
-		// Reset
-		IN = 16'b0000000000000001;
-		OP = 4'b0000; 
+		// Add
+		IN = 16'b0000000000000101;
+		OP = 4'b0010; 
 		#10;
-		$display("No-op");
-		$display("Output: %b", OUT);
+		$display("OP:  Add");
+		$display("OUT: %b", OUT);
+		$display("==============================================");
+
+
+		// Preset
+		IN = 16'b0000000000000100;
+		OP = 4'b0011; 
+		#10;
+		$display("OP:  Subtract");
+		$display("OUT: %b", OUT);
+		$display("==============================================");
 
 		$finish;
 	end
