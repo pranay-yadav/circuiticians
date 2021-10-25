@@ -232,6 +232,32 @@ module Mod(IN1, IN2, R, ME);
 	end
 endmodule
 
+// D Flip-Flop
+module DFF(CLK, D, Q);      
+	parameter n = 1;
+    input CLK;      // 1-bit clock signal
+    input [n-1:0] D;       
+    output [n-1:0] Q;    
+    reg [n-1:0] Q;
+    
+    always @(posedge CLK)   // clock signal drives flip-flops, rising edge
+    begin
+        Q = D;
+    end
+
+endmodule
+
+// Accumulator
+module Acc(CLK, D, OUT);
+	input CLK;
+	input [31:0] D;
+	output [31:0] OUT;
+	wire [31:0] Q;
+	wire [31:0] A;
+	DFF #(32) dff32(CLK, D, OUT); // chain of 32 D flip flops
+
+endmodule
+
 // Decoder
 module Dec(OP, SEL);
 	input [3:0] OP;
@@ -259,45 +285,47 @@ endmodule
 
 // Multiplexer
 // 16-channel 32-bit multiplexer with 16-bit one-hot selector
-module Mux(channels, SEL, OUT);
+module Mux(channels, SEL, D);
 	input [15:0][31:0] channels;
 	input [15:0] SEL;
-	output [31:0] OUT;
-
-	assign OUT = 	({32{SEL[ 0]}} & channels[ 0]) | 
-               		({32{SEL[ 1]}} & channels[ 1]) |
-			   		({32{SEL[ 2]}} & channels[ 2]) |
-			   		({32{SEL[ 3]}} & channels[ 3]) |
-			   		({32{SEL[ 4]}} & channels[ 4]) |
-			   		({32{SEL[ 5]}} & channels[ 5]) |
-			   		({32{SEL[ 6]}} & channels[ 6]) |
-			   		({32{SEL[ 7]}} & channels[ 7]) |
-			   		({32{SEL[ 8]}} & channels[ 8]) |
-			   		({32{SEL[ 9]}} & channels[ 9]) |
-			   		({32{SEL[10]}} & channels[10]) |
-			   		({32{SEL[11]}} & channels[11]) |
-			   		({32{SEL[12]}} & channels[12]) |
-			   		({32{SEL[13]}} & channels[13]) | 
-               		({32{SEL[14]}} & channels[14]) |
-               		({32{SEL[15]}} & channels[15]) ;
+	output [31:0] D;
+	wire [31:0] D;
+	assign D =  ({32{SEL[ 0]}} & channels[ 0]) | 
+               	({32{SEL[ 1]}} & channels[ 1]) |
+			   	({32{SEL[ 2]}} & channels[ 2]) |
+			   	({32{SEL[ 3]}} & channels[ 3]) |
+			   	({32{SEL[ 4]}} & channels[ 4]) |
+			   	({32{SEL[ 5]}} & channels[ 5]) |
+			   	({32{SEL[ 6]}} & channels[ 6]) |
+			   	({32{SEL[ 7]}} & channels[ 7]) |
+			   	({32{SEL[ 8]}} & channels[ 8]) |
+			   	({32{SEL[ 9]}} & channels[ 9]) |
+			   	({32{SEL[10]}} & channels[10]) |
+			   	({32{SEL[11]}} & channels[11]) |
+			   	({32{SEL[12]}} & channels[12]) |
+			   	({32{SEL[13]}} & channels[13]) | 
+               	({32{SEL[14]}} & channels[14]) |
+               	({32{SEL[15]}} & channels[15]) ;
 
 endmodule
 
 
-module BreadBoard(IN1, IN2, OP, OUT, ERR);
-	input [15:0] IN1;
-	input [15:0] IN2;
+module BreadBoard(CLK, IN, OP, OUT, ERR);
+	input [15:0] IN;
 	input [3:0] OP;
+	input CLK;
 	output [31:0] OUT;
 	output [1:0] ERR;
 
 	// Wires
-	wire [15:0] IN1; // Input 1
-	wire [15:0] IN2; // Input 2
+	wire [15:0] IN; // Input 
+	wire CLK; // Clock
 	wire [3:0] OP; // Operation
 	wire [31:0] OUT; // Output
 	wire [1:0] ERR; // Error
 	wire [1:0] DZE; // Divide by Zero Error
+	wire [16:0] RES; // Reset
+	wire [16:0] PRE; // Preset
 
 	//AddSub
 	wire M; // Mode
@@ -321,9 +349,15 @@ module BreadBoard(IN1, IN2, OP, OUT, ERR);
 
 	//Mux
 	wire [15:0][31:0] channels;
+	wire [31:0] D; // Output of Mux, feeds into input of Register Acc
+
+	//Acc - 32 bit Register
+	wire [15:0] FBK; // Feedback, lower 16 bits of output of Acc
 	
-	assign channels[ 0] = 0; // GROUND
-	assign channels[ 1] = 0; // GROUND 
+
+	// Multiplexer Channels
+	assign channels[ 0] = OUT; // Ouput of Acc should feed back into channel 0 for no-op
+	assign channels[ 1] = 0; // GND - unused channel
 	assign channels[ 2] = S; // add
 	assign channels[ 3] = S; // sub
 	assign channels[ 4] = P; // mul
@@ -336,112 +370,77 @@ module BreadBoard(IN1, IN2, OP, OUT, ERR);
 	assign channels[11] = 0; // GROUND
 	assign channels[12] = 0; // GROUND
 	assign channels[13] = 0; // GROUND
-	assign channels[14] = 0; // GROUND
-	assign channels[15] = 0; // GROUND
+	assign channels[14] = PRE; // Preset
+	assign channels[15] = RES; // Reset
 
 	// Module Instantiations
-
-	AddSub addersubtractor(IN1, IN2, M, S, CAR, OVF);
-	Mul multiplier(IN1, IN2, P);
-	Div divider(IN1, IN2, Q, DE);
-	Mod modulo(IN1, IN2, R, ME);
+	AddSub addersubtractor(FBK, IN, M, S, CAR, OVF);
+	Mul multiplier(FBK, IN, P);
+	Div divider(FBK, IN, Q, DE);
+	Mod modulo(FBK, IN, R, ME);
 	Dec decoder(OP, SEL);
-	Mux multiplexer(channels, SEL, OUT); 
+	Mux multiplexer(channels, SEL, D); 
+	Acc accumulator(CLK, D, OUT);
 	
-	// Set value of outputs
-	
+	// Set value of remaining wires
+	assign FBK = OUT[15:0]; // feedback is lower 16 bits of OUT
 	assign DZE = DE | ME;
 	assign ERR[0] = OVF;
 	assign ERR[1] = DZE;
 	assign M = ~OP[3] & ~OP[2] & OP[1] & OP[0]; // 0011 -> Subtraction
+	assign PRE = {32{1'b1}}; // all 1's
+	assign RES = {32{1'b0}}; // all 0's
 	
 endmodule
 
 
 module TestBench();
 	// Inputs
-	reg [15:0] IN1; 
-	reg [15:0] IN2; 
-	reg [3:0] OP;
+	reg [15:0] IN; // input number
+	reg CLK; // clock
+	reg [3:0] OP; // operation code
 	// Outputs
-	wire [31:0] OUT;
-	wire [1:0] ERR;
+	wire [31:0] OUT; // output of operation
+	wire [1:0] ERR; // error code
 
-	BreadBoard BB(IN1, IN2, OP, OUT, ERR);
+	BreadBoard BB(CLK, IN, OP, OUT, ERR);
 
+	// Clock - #10 time unit cycle
+	initial begin 
+		forever begin
+		  	CLK = 0;
+			#5;
+			CLK = 1;
+			#5;
+		end
+	end
+
+	// Stimulus
 	initial begin
+		#5; // Allow clock to start, stagger displays
 
-		// Integers less than 250
+		// Reset
+		IN = 16'b0000000000000001;
+		OP = 4'b1111; 
+		#10;
+		$display("Reset");
+		$display("Output: %b", OUT);
+		
+		// Reset
+		IN = 16'b0000000000000001;
+		OP = 4'b0010; 
+		#10;
+		$display("Add");
+		$display("Output: %b", OUT);
 
-	 	assign IN1 = 16'b0000000000001011; // 11
-		assign IN2 = 16'b0000000000110011; // 51
-		$display("=================================================================================================================================================");
-		$display("| Input 1                       | Input 2                       | Operation      | Output                                             | Error   |");
-		$display("|===============================================================================================================================================|");
+		// Reset
+		IN = 16'b0000000000000001;
+		OP = 4'b0000; 
+		#10;
+		$display("No-op");
+		$display("Output: %b", OUT);
 
-		// Add
-		assign OP = 4'b0010;
-		#100
-		$display("| IN1: %b (%d) | IN2: %b (%d) | OP: %b (ADD) | OUT: %b (%d) | ERR: %b |",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
-
-		// Subtract
-		assign OP = 4'b0011;
-		#100
-		$display("| IN1: %b (%d) | IN2: %b (%d) | OP: %b (SUB) | OUT: %b (%d) | ERR: %b |",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
-
-		// Multiply
-		assign OP = 4'b0100;
-		#100
-		$display("| IN1: %b (%d) | IN2: %b (%d) | OP: %b (MUL) | OUT: %b (%d) | ERR: %b |",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
-
-		// Divide
-		assign IN1 = 16'b0000000000001011; // 11
-		assign IN2 = 16'b0000000000000000; // 51
-		assign OP = 4'b0101;
-		#100
-		$display("| IN1: %b (%d) | IN2: %b (%d) | OP: %b (DIV) | OUT: %b (%d) | ERR: %b |",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
-
-		// Modulo
-		assign IN1 = 16'b0000000000001011; // 11
-		assign IN2 = 16'b0000000000110011; // 51
-		assign OP = 4'b0110;
-		#100
-		$display("| IN1: %b (%d) | IN2: %b (%d) | OP: %b (MOD) | OUT: %b (%d) | ERR: %b |",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
-
-		$display("|===============================================================================================================================================|");
-
-		// Integers greater than 16000
-
-		assign IN1 = 16'b1111011100100111; // 63271
-		assign IN2 = 16'b1011010100001100; // 46348
-		#100
-		// Add
-		assign OP = 4'b0010;
-		#100
-		$display("| IN1: %b (%d) | IN2: %b (%d) | OP: %b (ADD) | OUT: %b (%d) | ERR: %b |",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
-
-		// Subtract
-		assign OP = 4'b0011;
-		#100
-		$display("| IN1: %b (%d) | IN2: %b (%d) | OP: %b (SUB) | OUT: %b (%d) | ERR: %b |",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
-
-		// Multiply
-		assign OP = 4'b0100;
-		#100
-		$display("| IN1: %b (%d) | IN2: %b (%d) | OP: %b (MUL) | OUT: %b (%d) | ERR: %b |",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
-
-		// Divide
-		assign OP = 4'b0101;
-		#100
-		$display("| IN1: %b (%d) | IN2: %b (%d) | OP: %b (DIV) | OUT: %b (%d) | ERR: %b |",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
-
-		// Modulo
-		assign OP = 4'b0110;
-		#100
-		$display("| IN1: %b (%d) | IN2: %b (%d) | OP: %b (MOD) | OUT: %b (%d) | ERR: %b |",IN1,IN1,IN2,IN2,OP,OUT,OUT,ERR);
-
-		$display("=================================================================================================================================================");
-
+		$finish;
 	end
 
 endmodule  
