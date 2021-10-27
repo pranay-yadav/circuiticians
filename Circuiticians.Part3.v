@@ -25,6 +25,24 @@ endmodule
 
 // - Changes - 
 
+
+//XOR
+module Xor(Input1, Input2, OutXOR);
+	input [15:0] Input1;
+	input [15:0] Input2;
+	output [31:0] OutXOR;
+	assign OutXOR = {{16{1'b0}}, (Input1 ^ Input2)}; // pads with 0's to fit multiplexer
+endmodule
+
+//XNOR
+module XNor(Input1, Input2, OutXNOR);
+	input [15:0] Input1;
+	input [15:0] Input2;
+	output [31:0] OutXNOR;
+	assign OutXNOR = {{16{1'b0}}, ~(Input1 ^ Input2)}; // pads with 0's to fit multiplexer
+endmodule
+
+
 // Half Adder
 module HalfAdder(a, b, carry, sum);
 	input a;
