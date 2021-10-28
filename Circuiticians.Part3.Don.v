@@ -300,14 +300,14 @@ module Mux(channels, SEL, OUT);
 endmodule
 
 
-module BreadBoard(CLK, IN1, OP, OUT, ERR);
+module BreadBoard(CLK, IN1, OP, OUTresult, ERR);
 	// - Changes -
 	input CLK;          // clock signal
 	// - Changes -
 	input [15:0] IN1;
 	input [15:0] IN2;
 	input [3:0] OP;
-	output [31:0] OUT;
+	output [31:0] OUTresult;
 	output [1:0] ERR;
 	
 	// Wires
@@ -319,14 +319,11 @@ module BreadBoard(CLK, IN1, OP, OUT, ERR);
 	wire [1:0] DZE; // Divide by Zero Error
 	
 	// - Changes -
-	reg [31:0] OUT;     // Output
-	
-	reg [7:0] newVal;
-	wire [7:0] oldVal;
+	reg [31:0] OUTresult;     // Output
 	
 	// No-Op
 	wire[15:0] FBK;     // Feedback wire as IN1 for operations
-	wire[31:0] oVal;    // wire out
+	wire[31:0] OUT;    // wire out
 	// - Changes -
 
 	//AddSub
@@ -357,7 +354,7 @@ module BreadBoard(CLK, IN1, OP, OUT, ERR);
 	wire [31:0] D;                  // output of MUX
 	// - Changes -
 	
-	assign channels[ 0] = oVal; // No-Operation
+	assign channels[ 0] = OUT; // No-Operation
 	assign channels[ 1] = 0; // GROUND 
 	assign channels[ 2] = S; // add
 	assign channels[ 3] = S; // sub
@@ -376,7 +373,7 @@ module BreadBoard(CLK, IN1, OP, OUT, ERR);
 	
 	// - Changes -
 	//assign IN2 = 16'b0;         // test: to get last 16-bits of OUT
-	assign FBK = oVal[15:0];     // Feedback
+	assign FBK = OUT[15:0];     // Feedback
 	// - Changes -
 
 	// Module Instantiations
@@ -388,7 +385,7 @@ module BreadBoard(CLK, IN1, OP, OUT, ERR);
 	Dec decoder(OP, SEL);
 	Mux multiplexer(channels, SEL, D);
 	// - Changes -
-	DFF #(32) Acc(CLK, D, oVal);     // Accumulator between MUX and Output
+	DFF #(32) Acc(CLK, D, OUT);     // Accumulator between MUX and Output
 	// - Changes -
 	
 	// Set value of outputs
@@ -427,13 +424,13 @@ module TestBench();
 	begin
  			forever
 				begin
-					CLK=0;
-					#3;
-					#2;
-					CLK=1;
-					#3;  
+					CLK = 0;
+					#30;
+					#20;
+					CLK = 1;
+					#30;  
 					//$display("CLK:%b, Register:%b", CLK, BB.OUT);					
-					#2;
+					#20;
 				end
 	end
 
