@@ -109,11 +109,13 @@ module AddSub(IN1, IN2, M, S, CAR, OVF);
 	FullAdder F30(eIN1[30], eIN2[30]^M, c[30], c[31], S[30]);
 	FullAdder F31(eIN1[31], eIN2[31]^M, c[31], c[32], S[31]);
 
-	// carry
-	assign CAR = c[32];
-	// if highest bits of IN1 and IN2 are the same AND highest bit of S is different, then there was overflow
-	assign OVF = ~(eIN1[31]^eIN2[31]) & (eIN1[31]^S[31] | eIN2[31]^S[31]); 
-	
+	// carry of the 16-bit + 16-bit operation
+	assign CAR = c[16];
+	// 16-bit + 16-bit unsigned int cannot overflow into a 32-bit result.
+	// However, 16-bit - 16-bit unsigned can "overflow" and cycle around from 0 to MAX. 
+	// This can be detected if the MSB of sum S is a 1, which is only possible when M is 1.
+	assign OVF = S[31];
+
 endmodule
 
 
@@ -124,60 +126,99 @@ module Mul(IN1, IN2, P);
 	output [31:0] P; // product of IN1 * IN2
 	
 	// Registers to work with data
-	reg [31:0] regP;
-	reg [6:0] i;
+	reg [31:0] P;
+	
+	/*reg [6:0] i;
 	reg carry;
 	reg [15:0] sumReg;
 	reg [15:0] regA;
-	reg [15:0] regB;
+	reg [15:0] regB;*/
 
-	wire [17:0] c; // carry wires
-	wire [16:0] sum; // sum wires
+	wire [15:0] c; // carry wires
+	//wire [15:0] s [15:0]; // sum wires
 
-	assign c[0] = 1'b0;
+	reg [15:0]  Augend0 , Augend1 , Augend2 , Augend3 , 
+				Augend4 , Augend5 , Augend6 , Augend7 , 
+				Augend8 , Augend9 , Augend10, Augend11,
+				Augend12, Augend13, Augend14, Augend15;
+	reg [15:0]  Addend0 , Addend1 , Addend2 , Addend3 ,
+				Addend4 , Addend5 , Addend6 , Addend7 ,
+				Addend8 , Addend9 , Addend10, Addend11,
+				Addend12, Addend13, Addend14, Addend15;
+	wire [31:0] sum0 , sum1 , sum2 , sum3 ,
+				sum4 , sum5 , sum6 , sum7 ,
+				sum8 , sum9 , sum10, sum11,
+				sum12, sum13, sum14, sum15;
+	wire [15:0] ovf;
 
-	FullAdder F0 (regA[ 0], regB[ 0], c[ 0], c[ 1], sum[ 0]);
-	FullAdder F1 (regA[ 1], regB[ 1], c[ 1], c[ 2], sum[ 1]);
-	FullAdder F2 (regA[ 2], regB[ 2], c[ 2], c[ 3], sum[ 2]);
-	FullAdder F3 (regA[ 3], regB[ 3], c[ 3], c[ 4], sum[ 3]);
-	FullAdder F4 (regA[ 4], regB[ 4], c[ 4], c[ 5], sum[ 4]);
-	FullAdder F5 (regA[ 5], regB[ 5], c[ 5], c[ 6], sum[ 5]);
-	FullAdder F6 (regA[ 6], regB[ 6], c[ 6], c[ 7], sum[ 6]);
-	FullAdder F7 (regA[ 7], regB[ 7], c[ 7], c[ 8], sum[ 7]);
-	FullAdder F8 (regA[ 8], regB[ 8], c[ 8], c[ 9], sum[ 8]);
-	FullAdder F9 (regA[ 9], regB[ 9], c[ 9], c[10], sum[ 9]);
-	FullAdder F10(regA[10], regB[10], c[10], c[11], sum[10]);
-	FullAdder F11(regA[11], regB[11], c[11], c[12], sum[11]);
-	FullAdder F12(regA[12], regB[12], c[12], c[13], sum[12]);
-	FullAdder F13(regA[13], regB[13], c[13], c[14], sum[13]);
-	FullAdder F14(regA[14], regB[14], c[14], c[15], sum[14]);
-	FullAdder F15(regA[15], regB[15], c[15], c[16], sum[15]);
-	
-	
+	AddSub add0 (Addend0 , Augend0 , 1'b0, sum0 , c[0 ], ovf[0 ]);
+	AddSub add1 (Addend1 , Augend1 , 1'b0, sum1 , c[1 ], ovf[1 ]);
+	AddSub add2 (Addend2 , Augend2 , 1'b0, sum2 , c[2 ], ovf[2 ]);
+	AddSub add3 (Addend3 , Augend3 , 1'b0, sum3 , c[3 ], ovf[3 ]);
+	AddSub add4 (Addend4 , Augend4 , 1'b0, sum4 , c[4 ], ovf[4 ]);
+	AddSub add5 (Addend5 , Augend5 , 1'b0, sum5 , c[5 ], ovf[5 ]);
+	AddSub add6 (Addend6 , Augend6 , 1'b0, sum6 , c[6 ], ovf[6 ]);
+	AddSub add7 (Addend7 , Augend7 , 1'b0, sum7 , c[7 ], ovf[7 ]);
+	AddSub add8 (Addend8 , Augend8 , 1'b0, sum8 , c[8 ], ovf[8 ]);
+	AddSub add9 (Addend9 , Augend9 , 1'b0, sum9 , c[9 ], ovf[9 ]);
+	AddSub add10(Addend10, Augend10, 1'b0, sum10, c[10], ovf[10]);
+	AddSub add11(Addend11, Augend11, 1'b0, sum11, c[11], ovf[11]);
+	AddSub add12(Addend12, Augend12, 1'b0, sum12, c[12], ovf[12]);
+	AddSub add13(Addend13, Augend13, 1'b0, sum13, c[13], ovf[13]);
+	AddSub add14(Addend14, Augend14, 1'b0, sum14, c[14], ovf[14]);
+	//AddSub add15(Addend15, Augend15, 1'b0, sum15, c[15], ovf[15]);
 
 	always @(*) begin
-		sumReg = {16{IN1[0]}} & IN2;
-		carry = 0;
+	  	Addend0  = {16{IN1[1]}} & IN2;
+		Augend0  = {1'b0, ({15{IN1[0]}} & IN2[15:1])};
+		
+		Addend1  = {16{IN1[2]}} & IN2;
+		Augend1  = {c[0], sum0[15:1]};
+		
+		Addend2  = {16{IN1[3]}} & IN2;
+		Augend2  = {c[1], sum1[15:1]};
+
+		Addend3  = {16{IN1[4]}} & IN2;
+		Augend3  = {c[2], sum2[15:1]};
+
+		Addend4  = {16{IN1[5]}} & IN2;
+		Augend4  = {c[3], sum3[15:1]};
+		
+		Addend5  = {16{IN1[6]}} & IN2;
+		Augend5  = {c[4], sum4[15:1]};
+
+		Addend6  = {16{IN1[7]}} & IN2;
+		Augend6  = {c[5], sum5[15:1]};
+
+		Addend7  = {16{IN1[8]}} & IN2;
+		Augend7  = {c[6], sum6[15:1]};
+
+		Addend8  = {16{IN1[9]}} & IN2;
+		Augend8  = {c[7], sum7[15:1]};
+
+		Addend9  = {16{IN1[10]}} & IN2;
+		Augend9  = {c[8], sum8[15:1]};
+
+		Addend10 = {16{IN1[11]}} & IN2;
+		Augend10 = {c[9], sum9[15:1]};
+
+		Addend11 = {16{IN1[12]}} & IN2;
+		Augend11 = {c[10], sum10[15:1]};
+
+		Addend12 = {16{IN1[13]}} & IN2;
+		Augend12 = {c[11], sum11[15:1]};
+
+		Addend13 = {16{IN1[14]}} & IN2;
+		Augend13 = {c[12], sum12[15:1]};
+
+		Addend14 = {16{IN1[15]}} & IN2;
+		Augend14 = {c[13], sum13[15:1]};
 	
-		regP[0] = IN1[0] & IN2[0];
-		for (i = 1; i <= 15; i = i + 1) begin
-			
-			regA = {16{IN1[i]}} & IN2;
-			regB = {carry, sumReg[15:1]};
-			#1 // time delay to perform addition
-			carry = c[16];
-			sumReg = sum;
-			regP[i] = sum[0];
-			
-		end
-		#10
-		regP = {{carry, sumReg[15:1]}, regP[15:0]};
-		
-		
+		P = {c[14], sum14[15:0], sum13[0], sum12[0], 
+					sum11[0], sum10[0], sum9[0] , sum8[0] , 
+					sum7[0] , sum6[0] , sum5[0] , sum4[0] , 
+					sum3[0] , sum2[0] , sum1[0] , sum0[0], (IN1[0] & IN2[0])};
 	end
-
-
-	assign P = regP;
 
 endmodule
 
@@ -398,6 +439,7 @@ module BreadBoard(CLK, IN, OP, OUT, ERR);
 	wire [31:0] S; // Sum
 	wire CAR; // Carry
 	wire OVF; // Overflow
+	reg ovf; // overflow error to store on posedge of CLK
 
 	//Mul
 	wire [31:0] P; // Product
@@ -405,10 +447,12 @@ module BreadBoard(CLK, IN, OP, OUT, ERR);
 	//Div
 	wire [31:0] Q; // Quotient
 	wire DE; // Divide Error
+	reg divErr; // divide-error register to store on posedge of CLK
 
 	//Mod
 	wire [31:0] R; // Remainder
 	wire ME; // Mod Error
+	reg modErr; // mod-error register to store on posedge of CLK
 	
 	//And
 	wire [31:0] A; // AND
@@ -476,13 +520,18 @@ module BreadBoard(CLK, IN, OP, OUT, ERR);
 	Dec decoder(OP, SEL);
 	Mux multiplexer(channels, SEL, D); 
 	Acc accumulator(CLK, D, OUT);
-	CL errorLogic(OVF, DE, ME, OP, ERR);
+	CL combinationalLogic(ovf, divErr, modErr, OP, ERR); // error logic
 	// Set value of remaining wires
 	assign FBK = OUT[15:0]; // feedback is lower 16 bits of OUT
 	assign M   = ~OP[3] & ~OP[2] & OP[1] & OP[0]; // 0011 -> Subtraction
 	assign PRE = {32{1'b1}}; // all 1's
 	assign RES = {32{1'b0}}; // all 0's
-	
+
+	always @(posedge CLK) begin
+	  ovf = OVF;
+	  divErr = DE;
+	  modErr = ME;
+	end
 endmodule
 
 
@@ -501,9 +550,9 @@ module TestBench();
 	initial begin 
 		forever begin
 		  	CLK = 0;
-			#25;
+			#30;
 			CLK = 1;
-			#25;
+			#30;
 		end
 	end
 
@@ -519,123 +568,137 @@ module TestBench();
 		IN = 16'b0000000000000000; // 0
 		OP = 4'b1111;
 		$write("|| %b (%d) || %b (%d) || %b (   Reset) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#50
+		#60
 		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
 		$display("================================================================================================================================================");
-		
+		OP = 4'b0000; // Calls no-op after every operation as per state diagram
+
 		// No-op
 		IN = 16'b0000000000000000; // 0
 		OP = 4'b0000;
 		$write("|| %b (%d) || %b (%d) || %b (   No-op) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#50
+		#60
 		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
 		$display("================================================================================================================================================");
+		OP = 4'b0000; // Calls no-op after every operation as per state diagram
 		
 		// Add
-		IN = 16'b0000000000000111; // 7
+		IN = 16'b0000000011001101; // 205
 		OP = 4'b0010;
 		$write("|| %b (%d) || %b (%d) || %b (     Add) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#50
+		#60
 		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
 		$display("================================================================================================================================================");
-		
+		OP = 4'b0000; // Calls no-op after every operation as per state diagram
+
 		// Subtract
-		IN = 16'b0000000000000011; // 3
+		IN = 16'b0010000010000101; // 8325
 		OP = 4'b0011;
 		$write("|| %b (%d) || %b (%d) || %b (Subtract) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#50
+		#60
 		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
 		$display("================================================================================================================================================");
-		
+		OP = 4'b0000; // Calls no-op after every operation as per state diagram
+
 		// Multiply
-		IN = 16'b0000000011111010; // 250
+		IN = 16'b0110100110111001; // 255
 		OP = 4'b0100;
 		$write("|| %b (%d) || %b (%d) || %b (Multiply) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#50
+		#60
 		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
 		$display("================================================================================================================================================");
-		
+		OP = 4'b0000; // Calls no-op after every operation as per state diagram
+
 		// Divide
-		IN = 16'b0000000000100000; // 32
+		IN = 16'b0000000000000101; // 5
 		OP = 4'b0101;
 		$write("|| %b (%d) || %b (%d) || %b (  Divide) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#50
+		#60
 		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
 		$display("================================================================================================================================================");
+		OP = 4'b0000; // Calls no-op after every operation as per state diagram
 
 		// Modulus
-		IN = 16'b0000000000000100; // 4
+		IN = 16'b0000000000000111; // 7
 		OP = 4'b0110;
 		$write("|| %b (%d) || %b (%d) || %b ( Modulus) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#50
+		#60
 		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
 		$display("================================================================================================================================================");
-
+		OP = 4'b0000; // Calls no-op after every operation as per state diagram
+		
 		// AND
-		IN = 16'b0000000000100000; // 32
+		IN = 16'b0000000000100001; // 33
 		OP = 4'b1000;
 		$write("|| %b (%d) || %b (%d) || %b (     AND) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#50
+		#60
 		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
 		$display("================================================================================================================================================");
-				
+		OP = 4'b0000; // Calls no-op after every operation as per state diagram
+		
 		// OR
 		IN = 16'b0000000000101010; // 42
 		OP = 4'b0111;
 		$write("|| %b (%d) || %b (%d) || %b (      OR) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#50
+		#60
 		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
 		$display("================================================================================================================================================");
+		OP = 4'b0000; // Calls no-op after every operation as per state diagram
 		
 		// NOT
 		IN = 16'b0000000000000000; // 0
 		OP = 4'b1101;
 		$write("|| %b (%d) || %b (%d) || %b (     NOT) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#50
+		#60
 		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
 		$display("================================================================================================================================================");
+		OP = 4'b0000; // Calls no-op after every operation as per state diagram
 		
 		// XOR
 		IN = 16'b1111111111111111; // 65535
 		OP = 4'b1001;
 		$write("|| %b (%d) || %b (%d) || %b (     XOR) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#50
+		#60
 		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
 		$display("================================================================================================================================================");
-
+		OP = 4'b0000; // Calls no-op after every operation as per state diagram
+		
 		// XNOR
-		IN = 16'b1111111111110101; // 65525
+		IN = 16'b0101010101010101; // 65525
 		OP = 4'b1100;
 		$write("|| %b (%d) || %b (%d) || %b (    XNOR) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#50
+		#60
 		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
 		$display("================================================================================================================================================");
-				
+		OP = 4'b0000; // Calls no-op after every operation as per state diagram
+		
 		// NAND
 		IN = 16'b1111111111111111; // 65535
 		OP = 4'b1010;
 		$write("|| %b (%d) || %b (%d) || %b (    NAND) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#50
+		#60
 		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
 		$display("================================================================================================================================================");
+		OP = 4'b0000; // Calls no-op after every operation as per state diagram
 		
 		// NOR
-		IN = 16'b1111111111111111; // 65535
+		IN = 16'b0000000000000000; // 0
 		OP = 4'b1011;
 		$write("|| %b (%d) || %b (%d) || %b (     NOR) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#50
+		#60
 		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
 		$display("================================================================================================================================================");
+		OP = 4'b0000; // Calls no-op after every operation as per state diagram
 		
 		// Preset
 		IN = 16'b0000000000000000; // 0
 		OP = 4'b1110;
 		$write("|| %b (%d) || %b (%d) || %b (  Preset) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#50
+		#60
 		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
 		$display("================================================================================================================================================");
-		
-		
+		OP = 4'b0000; // Calls no-op after every operation as per state diagram
+				
 		$finish;
 	end
 
