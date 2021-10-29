@@ -405,6 +405,8 @@ module Mux(channels, SEL, D);
 
 endmodule
 
+// Combinational Logic
+// Sets error code based on overflow, divide and mod errors, and op code
 module CL(OVF, DE, ME, OP, ERR);
 	input OVF;
 	input DE;
@@ -416,6 +418,7 @@ module CL(OVF, DE, ME, OP, ERR);
 				   OVF & ( ~OP[3] & ~OP[2] & OP[1] & OP[0]) };
 endmodule
 
+// Breadboard
 module BreadBoard(CLK, IN, OP, OUT, ERR);
 	input [15:0] IN;
 	input [3:0] OP;
