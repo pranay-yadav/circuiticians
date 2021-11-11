@@ -569,7 +569,7 @@ module TestBench();
 		OP = 4'b1111; // RESET		
 		#60
 
-		/* Rectangular Prism */
+		/* RECTANGULAR PRISM */
 		/* 	
 			Surface Area = 2 * (h * l + h * w + w * l) = 2 * [(hl) + (hw) + (wl)]
 			h = 5, w = 10, l = 4, so Surface Area SA should = 220
@@ -634,7 +634,39 @@ module TestBench();
 		OP = 4'b1111; // RESET
 		#60;
 
-		/* End Rectangular Prism */
+		/* 
+			Is cube? = (l XNOR w) AND (w XNOR h)
+			0 = False, otherwise True
+			Should be 0 (false) since l != w != h
+		*/
+		IN = l_4;
+		OP = 4'b0010; // 0 + l
+		#60;
+		IN = w_4;
+		OP = 4'b1100; // l XNOR w
+		#60;
+		lXNORw_4 = OUT;
+		OP = 4'b1111; // RESET
+		#60;
+		IN = w_4;
+		OP = 4'b0010; // 0 + w
+		#60;
+		IN = h_4;
+		OP = 4'b1100; // w XNOR h
+		#60;
+		wXNORh_4 = OUT;
+		OP = 4'b1111; // RESET
+		#60;
+		IN = lXNORw_4[15:0];
+		OP = 4'b0010; // 0 + (l XNOR w)
+		#60;
+		IN = wXNORh_4[15:0];
+		OP = 4'b1000; // (l XNOR w) AND (w XNOR h)
+		#60;
+		IsCube_4 = OUT;
+		OP = 4'b1111; // RESET
+		#60;
+		/* End RECTANGULAR PRISM */
 		
 
 		/* Display Statements */
@@ -647,6 +679,7 @@ module TestBench();
 		$display("____________________________________________________________________________________________");
 		$display("    Surface Area = %b (%d)", SA_4, SA_4);
 		$display("    Volume = %b (%d)", VOL_4, VOL_4);	
+		$display("    Is a cube? (All 1's = True, otherwise False) = %b (%d)", IsCube_4[15:0], IsCube_4[15:0]);	
 		$display("============================================================================================");
 		/* End Display Statements */
 		$finish;
@@ -663,5 +696,8 @@ module TestBench();
 	reg [31:0] hl_4; // h * l 
 	reg [31:0] hw_4; // h * w
 	reg [31:0] wl_4; // w * l
+	reg [31:0] IsCube_4; // All 1's = True, otherwise false
+	reg [31:0] lXNORw_4; // l XNOR w
+	reg [31:0] wXNORh_4; // w XNOR h
 
 endmodule  
