@@ -559,19 +559,79 @@ module TestBench();
 		end
 	end
 
+	
+
 	// Stimulus
 	initial begin
 		/* Initialize Circuit */
 		#13 // Allow clock to start, stagger displays.
-		IN = 0'b0000000000000000;
-		OP = 4'b1111; // RESET
-		#60 // Delay
-		OP = 4'b0000; // set OP to 0000
-		
-	
+		IN = 16'b0000000000000000;
+		OP = 4'b1111; // RESET		
+		#60
+		/* Rectangular Prism */
 
+
+		/* 	Surface Area = 2 * (h * l + h * w + w * l) = 2 * [(hl) + (hw) + (wl)]
+			h = 5, w = 10, l = 4, so Surface Area SA should = 220
+		*/
+		IN = h;
+		OP = 4'b0010; // Add 0 + h
+		#60;
+		IN = l;
+		OP = 4'b0100; // Multiply h * l, store in hl
+		#60;
+		hl = OUT;
+		$display("hl = %b (%d)", hl, hl);
+		OP = 4'b1111; // RESET
+		#60;
+		IN = h; 
+		OP = 4'b0010; // Add 0 + h
+		#60;
+		IN = w;
+		OP = 4'b0100; // Multiply h * w
+		#60;
+		hw = OUT;
+		OP = 4'b1111; // RESET
+		#60;
+		IN = w; 
+		OP = 4'b0010; // Add 0 + h
+		#60;
+		IN = l;
+		OP = 4'b0100; // Multiply w * l
+		#60;
+		wl = OUT;
+		OP = 4'b1111; // RESET
+		#60;
+		IN = hl; 
+		OP = 4'b0010; // Add 0 + hl
+		#60;
+		IN = hw; 
+		OP = 4'b0010; // Add hl + hw
+		#60;
+		IN = wl; 
+		OP = 4'b0010; // Add hl + hw + wl
+		#60;
+		IN = 16'b0000000000000010; // 2
+		OP = 4'b0100; // Multiply 2 * (hl + hw + wl)
+		#60;
+		SA = OUT;
+		$display("Surface Area = %b (%d)", SA, SA);
+
+		
 
 		$finish;
 	end
+
+	/* Local Variables for Calculations */ 
+
+	// Rectangular Prism
+	reg [15:0] l = 16'b0000000000000100; // length = 4
+	reg [15:0] w = 16'b0000000000001010; // width = 10
+	reg [15:0] h = 16'b0000000000000101; // height = 5
+	reg [31:0] SA; // surface area
+	reg [31:0] VOL; // volume
+	reg [31:0] hl; // h * l 
+	reg [31:0] hw; // h * w
+	reg [31:0] wl; // w * l
 
 endmodule  
