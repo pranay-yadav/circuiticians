@@ -568,70 +568,100 @@ module TestBench();
 		IN = 16'b0000000000000000;
 		OP = 4'b1111; // RESET		
 		#60
+
 		/* Rectangular Prism */
-
-
-		/* 	Surface Area = 2 * (h * l + h * w + w * l) = 2 * [(hl) + (hw) + (wl)]
+		/* 	
+			Surface Area = 2 * (h * l + h * w + w * l) = 2 * [(hl) + (hw) + (wl)]
 			h = 5, w = 10, l = 4, so Surface Area SA should = 220
 		*/
-		IN = h;
+		IN = h_4;
 		OP = 4'b0010; // Add 0 + h
 		#60;
-		IN = l;
+		IN = l_4;
 		OP = 4'b0100; // Multiply h * l, store in hl
 		#60;
-		hl = OUT;
-		$display("hl = %b (%d)", hl, hl);
+		hl_4 = OUT;
 		OP = 4'b1111; // RESET
 		#60;
-		IN = h; 
+		IN = h_4; 
 		OP = 4'b0010; // Add 0 + h
 		#60;
-		IN = w;
+		IN = w_4;
 		OP = 4'b0100; // Multiply h * w
 		#60;
-		hw = OUT;
+		hw_4 = OUT;
 		OP = 4'b1111; // RESET
 		#60;
-		IN = w; 
+		IN = w_4; 
 		OP = 4'b0010; // Add 0 + h
 		#60;
-		IN = l;
+		IN = l_4;
 		OP = 4'b0100; // Multiply w * l
 		#60;
-		wl = OUT;
+		wl_4 = OUT;
 		OP = 4'b1111; // RESET
 		#60;
-		IN = hl; 
+		IN = hl_4; 
 		OP = 4'b0010; // Add 0 + hl
 		#60;
-		IN = hw; 
+		IN = hw_4; 
 		OP = 4'b0010; // Add hl + hw
 		#60;
-		IN = wl; 
+		IN = wl_4; 
 		OP = 4'b0010; // Add hl + hw + wl
 		#60;
 		IN = 16'b0000000000000010; // 2
 		OP = 4'b0100; // Multiply 2 * (hl + hw + wl)
 		#60;
-		SA = OUT;
-		$display("Surface Area = %b (%d)", SA, SA);
+		SA_4 = OUT; // Set Surface Area
+		OP = 4'b1111; // RESET
+		#60;
+		
+		/* 
+			Volume = l * w * h
+			Volume VOL should = 4 * 10 * 5 = 200
+		*/
+		IN = l_4;
+		OP = 4'b0010; // Add 0 + l
+		#60;
+		IN = w_4;
+		OP = 4'b0100; // Multiply l * w
+		#60;
+		IN = h_4;
+		OP = 4'b0100; // Multiply l * w * h
+		#60;
+		VOL_4 = OUT; // Set volume
+		OP = 4'b1111; // RESET
+		#60;
 
+		/* End Rectangular Prism */
 		
 
+		/* Display Statements */
+		$display("============================================================================================");
+		$display("    GEOMETRIC SHAPES CALCULATIONS");
+		$display("============================================================================================");
+		$display("============================================================================================");
+		$display("    RECTANGULAR PRISM");
+		$display("    Parameters: length = %d, width = %d, height = %d", l_4, w_4, h_4);
+		$display("____________________________________________________________________________________________");
+		$display("    Surface Area = %b (%d)", SA_4, SA_4);
+		$display("    Volume = %b (%d)", VOL_4, VOL_4);	
+		$display("============================================================================================");
+		/* End Display Statements */
 		$finish;
 	end
 
 	/* Local Variables for Calculations */ 
 
 	// Rectangular Prism
-	reg [15:0] l = 16'b0000000000000100; // length = 4
-	reg [15:0] w = 16'b0000000000001010; // width = 10
-	reg [15:0] h = 16'b0000000000000101; // height = 5
-	reg [31:0] SA; // surface area
-	reg [31:0] VOL; // volume
-	reg [31:0] hl; // h * l 
-	reg [31:0] hw; // h * w
-	reg [31:0] wl; // w * l
+	reg [15:0] l_4 = 16'b0000000000000100; // length = 4
+	reg [15:0] w_4 = 16'b0000000000001010; // width = 10
+	reg [15:0] h_4 = 16'b0000000000000101; // height = 5
+	reg [31:0] SA_4; // surface area
+	reg [31:0] VOL_4; // volume
+	reg [31:0] hl_4; // h * l 
+	reg [31:0] hw_4; // h * w
+	reg [31:0] wl_4; // w * l
 
 endmodule  
