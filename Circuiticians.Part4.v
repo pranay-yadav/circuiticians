@@ -561,14 +561,14 @@ module TestBench();
 
 	// Stimulus
 	initial begin
+		/* Initialize Circuit */
 		#13 // Allow clock to start, stagger displays.
-
-		// Set IN and OP
+		IN = 0'b0000000000000000;
+		OP = 4'b1111; // RESET
 		#60 // Delay
-		// Set local variables (reg variables) to OUT
-		OP = 4'b0000; // Reset OP to 0000 after every call
+		OP = 4'b0000; // set OP to 0000
 		
-		
+	
 
 
 		$finish;
