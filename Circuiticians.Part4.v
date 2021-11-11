@@ -1,5 +1,5 @@
 /*
-	Circuiticians Project Part 3
+	Circuiticians Project Part 4
 	CS 4341.001 Fall 2021 - University of Texas at Dallas
 	
 	Authors: 
@@ -561,147 +561,16 @@ module TestBench();
 
 	// Stimulus
 	initial begin
-		$display("================================================================================================================================================");
-		$display("|| Input IN                 || Feedback FBK             || Opcode OP       || Output OUT                                         || Error ERR ||");
-		$display("================================================================================================================================================");
+		#13 // Allow clock to start, stagger displays.
 
-		#13; // Allow clock to start, stagger displays
+		// Set IN and OP
+		#60 // Delay
+		// Set local variables (reg variables) to OUT
+		OP = 4'b0000; // Reset OP to 0000 after every call
+		
+		
 
-		// Reset
-		IN = 16'b0000000000000000; // 0
-		OP = 4'b1111;
-		$write("|| %b (%d) || %b (%d) || %b (   Reset) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#60
-		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
-		$display("================================================================================================================================================");
-		OP = 4'b0000; // Calls no-op after every operation as per state diagram
 
-		// No-op
-		IN = 16'b0000000000000000; // 0
-		OP = 4'b0000;
-		$write("|| %b (%d) || %b (%d) || %b (   No-op) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#60
-		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
-		$display("================================================================================================================================================");
-		OP = 4'b0000; // Calls no-op after every operation as per state diagram
-		
-		// Add
-		IN = 16'b0000000011001101; // 205
-		OP = 4'b0010;
-		$write("|| %b (%d) || %b (%d) || %b (     Add) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#60
-		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
-		$display("================================================================================================================================================");
-		OP = 4'b0000; // Calls no-op after every operation as per state diagram
-
-		// Subtract
-		IN = 16'b0010000010000101; // 8325
-		OP = 4'b0011;
-		$write("|| %b (%d) || %b (%d) || %b (Subtract) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#60
-		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
-		$display("================================================================================================================================================");
-		OP = 4'b0000; // Calls no-op after every operation as per state diagram
-
-		// Multiply
-		IN = 16'b0110100110111001; // 255
-		OP = 4'b0100;
-		$write("|| %b (%d) || %b (%d) || %b (Multiply) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#60
-		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
-		$display("================================================================================================================================================");
-		OP = 4'b0000; // Calls no-op after every operation as per state diagram
-
-		// Divide
-		IN = 16'b0000000000000101; // 5
-		OP = 4'b0101;
-		$write("|| %b (%d) || %b (%d) || %b (  Divide) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#60
-		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
-		$display("================================================================================================================================================");
-		OP = 4'b0000; // Calls no-op after every operation as per state diagram
-
-		// Modulus
-		IN = 16'b0000000000000111; // 7
-		OP = 4'b0110;
-		$write("|| %b (%d) || %b (%d) || %b ( Modulus) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#60
-		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
-		$display("================================================================================================================================================");
-		OP = 4'b0000; // Calls no-op after every operation as per state diagram
-		
-		// AND
-		IN = 16'b0000000000100001; // 33
-		OP = 4'b1000;
-		$write("|| %b (%d) || %b (%d) || %b (     AND) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#60
-		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
-		$display("================================================================================================================================================");
-		OP = 4'b0000; // Calls no-op after every operation as per state diagram
-		
-		// OR
-		IN = 16'b0000000000101010; // 42
-		OP = 4'b0111;
-		$write("|| %b (%d) || %b (%d) || %b (      OR) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#60
-		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
-		$display("================================================================================================================================================");
-		OP = 4'b0000; // Calls no-op after every operation as per state diagram
-		
-		// NOT
-		IN = 16'b0000000000000000; // 0
-		OP = 4'b1101;
-		$write("|| %b (%d) || %b (%d) || %b (     NOT) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#60
-		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
-		$display("================================================================================================================================================");
-		OP = 4'b0000; // Calls no-op after every operation as per state diagram
-		
-		// XOR
-		IN = 16'b1111111111111111; // 65535
-		OP = 4'b1001;
-		$write("|| %b (%d) || %b (%d) || %b (     XOR) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#60
-		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
-		$display("================================================================================================================================================");
-		OP = 4'b0000; // Calls no-op after every operation as per state diagram
-		
-		// XNOR
-		IN = 16'b0101010101010101; // 65525
-		OP = 4'b1100;
-		$write("|| %b (%d) || %b (%d) || %b (    XNOR) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#60
-		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
-		$display("================================================================================================================================================");
-		OP = 4'b0000; // Calls no-op after every operation as per state diagram
-		
-		// NAND
-		IN = 16'b1111111111111111; // 65535
-		OP = 4'b1010;
-		$write("|| %b (%d) || %b (%d) || %b (    NAND) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#60
-		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
-		$display("================================================================================================================================================");
-		OP = 4'b0000; // Calls no-op after every operation as per state diagram
-		
-		// NOR
-		IN = 16'b0000000000000000; // 0
-		OP = 4'b1011;
-		$write("|| %b (%d) || %b (%d) || %b (     NOR) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#60
-		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
-		$display("================================================================================================================================================");
-		OP = 4'b0000; // Calls no-op after every operation as per state diagram
-		
-		// Preset
-		IN = 16'b0000000000000000; // 0
-		OP = 4'b1110;
-		$write("|| %b (%d) || %b (%d) || %b (  Preset) || ", IN, IN, BB.FBK, BB.FBK, OP);
-		#60
-		$display("[%b] [%b] (%d) || %b        ||", OUT[31:16], OUT[15:0], OUT, ERR);
-		$display("================================================================================================================================================");
-		OP = 4'b0000; // Calls no-op after every operation as per state diagram
-				
 		$finish;
 	end
 
