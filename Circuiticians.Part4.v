@@ -559,19 +559,145 @@ module TestBench();
 		end
 	end
 
+	
+
 	// Stimulus
 	initial begin
 		/* Initialize Circuit */
 		#13 // Allow clock to start, stagger displays.
-		IN = 0'b0000000000000000;
+		IN = 16'b0000000000000000;
+		OP = 4'b1111; // RESET		
+		#60
+
+		/* RECTANGULAR PRISM */
+		/* 	
+			Surface Area = 2 * (h * l + h * w + w * l) = 2 * [(hl) + (hw) + (wl)]
+			h = 5, w = 10, l = 4, so Surface Area SA should = 220
+		*/
+		IN = h_4;
+		OP = 4'b0010; // Add 0 + h
+		#60;
+		IN = l_4;
+		OP = 4'b0100; // Multiply h * l, store in hl
+		#60;
+		hl_4 = OUT;
 		OP = 4'b1111; // RESET
-		#60 // Delay
-		OP = 4'b0000; // set OP to 0000
+		#60;
+		IN = h_4; 
+		OP = 4'b0010; // Add 0 + h
+		#60;
+		IN = w_4;
+		OP = 4'b0100; // Multiply h * w
+		#60;
+		hw_4 = OUT;
+		OP = 4'b1111; // RESET
+		#60;
+		IN = w_4; 
+		OP = 4'b0010; // Add 0 + h
+		#60;
+		IN = l_4;
+		OP = 4'b0100; // Multiply w * l
+		#60;
+		wl_4 = OUT;
+		OP = 4'b1111; // RESET
+		#60;
+		IN = hl_4; 
+		OP = 4'b0010; // Add 0 + hl
+		#60;
+		IN = hw_4; 
+		OP = 4'b0010; // Add hl + hw
+		#60;
+		IN = wl_4; 
+		OP = 4'b0010; // Add hl + hw + wl
+		#60;
+		IN = 16'b0000000000000010; // 2
+		OP = 4'b0100; // Multiply 2 * (hl + hw + wl)
+		#60;
+		SA_4 = OUT; // Set Surface Area
+		OP = 4'b1111; // RESET
+		#60;
 		
-	
+		/* 
+			Volume = l * w * h
+			Volume VOL should = 4 * 10 * 5 = 200
+		*/
+		IN = l_4;
+		OP = 4'b0010; // Add 0 + l
+		#60;
+		IN = w_4;
+		OP = 4'b0100; // Multiply l * w
+		#60;
+		IN = h_4;
+		OP = 4'b0100; // Multiply l * w * h
+		#60;
+		VOL_4 = OUT; // Set volume
+		OP = 4'b1111; // RESET
+		#60;
 
+		/* 
+			Is cube? = (l XNOR w) AND (w XNOR h)
+			0 = False, otherwise True
+			Should be 0 (false) since l != w != h
+		*/
+		IN = l_4;
+		OP = 4'b0010; // 0 + l
+		#60;
+		IN = w_4;
+		OP = 4'b1100; // l XNOR w
+		#60;
+		lXNORw_4 = OUT;
+		OP = 4'b1111; // RESET
+		#60;
+		IN = w_4;
+		OP = 4'b0010; // 0 + w
+		#60;
+		IN = h_4;
+		OP = 4'b1100; // w XNOR h
+		#60;
+		wXNORh_4 = OUT;
+		OP = 4'b1111; // RESET
+		#60;
+		IN = lXNORw_4[15:0];
+		OP = 4'b0010; // 0 + (l XNOR w)
+		#60;
+		IN = wXNORh_4[15:0];
+		OP = 4'b1000; // (l XNOR w) AND (w XNOR h)
+		#60;
+		IsCube_4 = OUT;
+		OP = 4'b1111; // RESET
+		#60;
+		/* End RECTANGULAR PRISM */
+		
 
+		/* Display Statements */
+		$display("============================================================================================");
+		$display("    GEOMETRIC SHAPES CALCULATIONS");
+		$display("============================================================================================");
+		$display("============================================================================================");
+		$display("    RECTANGULAR PRISM");
+		$display("    Parameters: length = %d, width = %d, height = %d", l_4, w_4, h_4);
+		$display("____________________________________________________________________________________________");
+		$display("    Surface Area = %b (%d)", SA_4, SA_4);
+		$display("    Volume = %b (%d)", VOL_4, VOL_4);	
+		$display("    Is a cube? (All 1's = True, otherwise False) = %b (%d)", IsCube_4[15:0], IsCube_4[15:0]);	
+		$display("============================================================================================");
+		/* End Display Statements */
 		$finish;
 	end
+
+	/* Local Variables for Calculations */ 
+
+	// Rectangular Prism
+	reg [15:0] l_4 = 16'b0000000000000100; // length = 4
+	reg [15:0] w_4 = 16'b0000000000001010; // width = 10
+	reg [15:0] h_4 = 16'b0000000000000101; // height = 5
+	reg [31:0] SA_4; // surface area
+	reg [31:0] VOL_4; // volume
+	reg [31:0] hl_4; // h * l 
+	reg [31:0] hw_4; // h * w
+	reg [31:0] wl_4; // w * l
+	reg [31:0] IsCube_4; // All 1's = True, otherwise false
+	reg [31:0] lXNORw_4; // l XNOR w
+	reg [31:0] wXNORh_4; // w XNOR h
 
 endmodule  
