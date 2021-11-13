@@ -604,9 +604,9 @@ module TestBench();
         #60;
         
         /*
-            Is square? = (l XNOR w)
-			0 = False, otherwise True
-			Should be 0 (false) since l != w
+           Is square? = (l XNOR w)
+		0 = False, otherwise True
+		Should be 0 (false) since l != w
         */
         IN = l_2;
 		OP = 4'b0010; // 0 + l
