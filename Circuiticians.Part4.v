@@ -706,6 +706,51 @@ module TestBench();
 		#60
 		/* END RECTANGLE */
 
+		/* CIRCLE */
+		/* 	
+			Pi = 314/100
+			Circumference = 2 * pi * r
+			Area = pi * r * r
+		*/
+		IN = 16'b0000000100111010; // 314
+		OP = 4'b0010; // Add 0 + 314
+		#60;
+		IN = 16'b0000000001100100; // 100
+		OP = 4'b0101; // Divide 314 / 100, store in pi
+		#60;
+		PI = OUT;
+		OP = 4'b1111; // RESET
+		#60;
+		
+		IN = PI; 
+		OP = 4'b0010; // Add 0 + Pi
+		#60;
+		IN = r_3;
+		OP = 4'b0100; // Multiply Pi * r
+		#60;
+		IN = 16'b0000000000000010; // 2
+		OP = 4'b0100; // Multiply 2 * Pi * r
+		#60;
+		CIRCUMFERENCE_3 = OUT;
+		OP = 4'b1111; // RESET
+		#60;
+
+        IN = PI; 
+		OP = 4'b0010; // Add 0 + Pi
+		#60;
+		IN = r_3;
+		OP = 4'b0100; // Multiply Pi * r
+		#60;
+		IN = r_3; 
+		OP = 4'b0100; // Multiply Pi * r * r
+		#60;
+		AREA_3 = OUT;
+		OP = 4'b1111; // RESET
+		#60;
+	
+		/* End CIRCLE */
+
+
 		/* RECTANGULAR PRISM */
 		/* 	
 			Surface Area = 2 * (h * l + h * w + w * l) = 2 * [(hl) + (hw) + (wl)]
@@ -813,7 +858,7 @@ module TestBench();
 		$display("============================================================================================");
 		$display("    RECTANGLE");
 		$display("    Parameters: length = %d, width = %d", l_2, w_2);
-		$display("____________________________________________________________________________________________");
+		$display("  ________________________________________________________________________________________\n");
 		$display("    Perimeter = %d", P_2);
 		$display("    Area = %d", A_2);	
 		$display("    Is a square? (All 1's = True, otherwise False) = %b", IsSquare_2[15:0]);	
@@ -822,16 +867,24 @@ module TestBench();
 		$display("============================================================================================");
       	$display("    TRIANGLE");
       	$display("    Parameters (sides): a = %d, b = %d, c = %d", a_1, b_1, c_1);
-		$display("____________________________________________________________________________________________\n");
+		$display("  ________________________________________________________________________________________\n");
 		$display("    Perimeter = %d", PERIMETER_1);
 		$display("    AREA = %d", AREA_1);
 		$display("    Is Right Triangle? (All 1's = True, otherwise False): %b", IsRight_1[15:0]);
 		$display("============================================================================================");
 
 		$display("============================================================================================");
+		$display("    CIRCLE");
+		$display("    Parameters: radius = %d", r_3);
+		$display("  ________________________________________________________________________________________\n");
+		$display("    Circumference = %d", CIRCUMFERENCE_3);
+		$display("    Area = %d", AREA_3);	
+		$display("============================================================================================");
+
+		$display("============================================================================================");
 		$display("    RECTANGULAR PRISM");
 		$display("    Parameters: length = %d, width = %d, height = %d", l_4, w_4, h_4);
-		$display("____________________________________________________________________________________________\n");
+		$display("  ________________________________________________________________________________________\n");
 		$display("    Surface Area = %d", SA_4);
 		$display("    Volume = %d", VOL_4);	
 		$display("    Is a cube? (All 1's = True, otherwise False) = %b", IsCube_4[15:0]);	
@@ -860,6 +913,12 @@ module TestBench();
 	reg [31:0] A_2; // area
 	reg [31:0] IsSquare_2; // All 1's = True, otherwise false
 
+	// Circle
+	reg [15:0] r_3 = 16'b0000000000001000; // Radius = 8
+	reg [31:0] CIRCUMFERENCE_3; // Circumference 
+	reg [31:0] PI; // pi = 314 / 100
+	reg [31:0] AREA_3; // Area
+	
 	// Rectangular Prism
 	reg [15:0] l_4 = 16'b0000000000000100; // length = 4
 	reg [15:0] w_4 = 16'b0000000000001010; // width = 10
