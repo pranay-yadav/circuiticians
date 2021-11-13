@@ -569,6 +569,91 @@ module TestBench();
 		OP = 4'b1111; // RESET		
 		#60
 
+		/* TRIANGLE */
+		/* 	
+			Perimeter = a + b + c 
+		*/
+		IN = a_1;
+		OP = 4'b0010; // Add 0 + a
+		#60;
+		IN = b_1;
+		OP = 4'b0010; // a + b 
+		#60;
+		IN = c_1;
+		OP = 4'b0010; // a + b + c
+		#60;
+		PERIMETER_1 = OUT; //set perimeter
+		OP = 4'b1111; // RESET
+		#60;
+		
+		/* 
+			Area = a * b / 2
+		*/
+		IN = a_1;
+		OP = 4'b0010; // Add 0 + a
+		#60;
+		IN = b_1;
+		OP = 4'b0100; // Multiply a *  b
+		#60;
+		IN =  16'b0000000000000010; // 2
+		OP = 4'b0101; // Divide a * b by 2
+		#60;
+		AREA_1 = OUT; // Set volume
+		OP = 4'b1111; // RESET
+		#60;
+
+		/* 
+			is right? (a * a) XNOR
+			0 = False, otherwise True
+			Should be 0 (false) since l != w != h
+		*/
+		
+		IN = a_1;
+		OP = 4'b0010; // 0 + a
+		#60;
+		IN = a_1;
+		OP = 4'b0100; // a * a
+		#60;
+		a2_1 = OUT; //a^2 + b^2
+		OP = 4'b1111; //reset
+		
+		#60;
+		IN = b_1;
+		OP = 4'b0010; // 0 + b
+		#60;
+		IN = b_1;
+		OP = 4'b0100; // b * b
+		#60;
+		
+		b2_1 = OUT; //a^2 + b^2
+		OP = 4'b1111; //reset
+		#60
+		
+		IN = a2_1;
+		OP = 4'b0010; // 0 + a^2
+		#60;
+		IN = b2_1;
+		OP = 4'b0010; // a^2 * b^2
+		#60;
+		a2b2_1 = OUT; //a^2 + b^2
+		OP = 4'b1111; //reset
+		#60;
+		
+		IN = c_1;
+		OP = 4'b0010; // 0 + c
+		#60;
+		IN = c_1;
+		OP = 4'b0100; // c * c
+		#60;
+		IN = a2b2_1;
+		OP = 4'b1100; // isRight_1 XOR c*c (should be all 0s if true)
+		#60
+		IsRight_1 = OUT;
+		OP = 4'b1111;
+		#60
+		/* End TRIANGLE */
+
+
 		/* RECTANGULAR PRISM */
 		/* 	
 			Surface Area = 2 * (h * l + h * w + w * l) = 2 * [(hl) + (hw) + (wl)]
@@ -667,25 +752,45 @@ module TestBench();
 		OP = 4'b1111; // RESET
 		#60;
 		/* End RECTANGULAR PRISM */
-		
-
+	
 		/* Display Statements */
 		$display("============================================================================================");
 		$display("    GEOMETRIC SHAPES CALCULATIONS");
 		$display("============================================================================================");
+
+		$display("============================================================================================");
+      	$display("    TRIANGLE");
+      	$display("    Parameters (sides): a = %d, b = %d, c = %d", a_1, b_1, c_1);
+		$display("____________________________________________________________________________________________\n");
+		$display("    Perimeter = %d", PERIMETER_1);
+		$display("    AREA = %d", AREA_1);
+		$display("    Is Right Triangle? (All 1's = True, otherwise False): %b", IsRight_1[15:0]);
+		$display("============================================================================================");
+
 		$display("============================================================================================");
 		$display("    RECTANGULAR PRISM");
 		$display("    Parameters: length = %d, width = %d, height = %d", l_4, w_4, h_4);
 		$display("____________________________________________________________________________________________\n");
-		$display("    Surface Area = %b (%d)", SA_4, SA_4);
-		$display("    Volume = %b (%d)", VOL_4, VOL_4);	
-		$display("    Is a cube? (All 1's = True, otherwise False) = %b (%d)", IsCube_4[15:0], IsCube_4[15:0]);	
+		$display("    Surface Area = %d", SA_4);
+		$display("    Volume = %d", VOL_4);	
+		$display("    Is a cube? (All 1's = True, otherwise False) = %b", IsCube_4[15:0]);	
 		$display("============================================================================================");
 		/* End Display Statements */
 		$finish;
 	end
 
 	/* Local Variables for Calculations */ 
+
+	// Triangle
+	reg [15:0] a_1 = 16'b0000000000000011; // a = 3
+  	reg [15:0] b_1 = 16'b0000000000000100; // b = 4
+	reg [15:0] c_1 = 16'b0000000000000101; // c = 5
+	reg [31:0] PERIMETER_1; 
+	reg [31:0] AREA_1; // area
+	reg [31:0] a2_1;
+	reg [31:0] b2_1;
+	reg [31:0] a2b2_1; // a^2 + b^2;
+	reg [31:0] IsRight_1; // All 1's = True, otherwise false
 
 	// Rectangular Prism
 	reg [15:0] l_4 = 16'b0000000000000100; // length = 4
