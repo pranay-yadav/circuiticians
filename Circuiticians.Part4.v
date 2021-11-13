@@ -568,7 +568,60 @@ module TestBench();
 		IN = 16'b0000000000000000;
 		OP = 4'b1111; // RESET		
 		#60
-
+        
+        /* Rectangle */
+        /*
+            Perimeter = 2(l + w) = (2l + 2w)
+            l = 10, w = 8, therefore, Perimeter P should equal 36.
+        */
+        IN = l_2;
+        OP = 4'b0010; // Add 0 + l
+        #60;
+        IN = w_2;
+        OP = 4'b0010; // Add l + w
+        #60;
+        IN = 16'b0000000000000010; // 2
+        OP = 4'b0100; // Multiply 2 w/ (l + w)
+        #60;
+        P_2 = OUT; // Set Perimeter
+        OP = 4'b1111; // RESET
+        
+        #60;
+        
+        /*
+            Area = (l * w)
+            l = 10, w = 8, therefore, Area A should equal 80.
+        */
+        IN = l_2;
+        OP = 4'b0010; // Add 0 + l
+        #60;
+        IN = w_2;
+        OP = 4'b0100; // Multiply w w/ l for (l * w)
+        #60;
+        A_2 = OUT; // Set Area
+        OP = 4'b1111; // RESET
+        
+        #60;
+        
+        /*
+            Is square? = (l XNOR w)
+			0 = False, otherwise True
+			Should be 0 (false) since l != w
+        */
+        IN = l_2;
+		OP = 4'b0010; // 0 + l
+		#60;
+		IN = w_2;
+		OP = 4'b1100; // l XNOR w
+		#60;
+		IsSquare_2 = OUT; // Set IsSquare
+		OP = 4'b1111; // RESET
+		#60;
+		/* End RECTANGLE */
+        
+        OP = 4'b1111; // RESET		
+		#60
+        
 		/* RECTANGULAR PRISM */
 		/* 	
 			Surface Area = 2 * (h * l + h * w + w * l) = 2 * [(hl) + (hw) + (wl)]
@@ -674,6 +727,14 @@ module TestBench();
 		$display("    GEOMETRIC SHAPES CALCULATIONS");
 		$display("============================================================================================");
 		$display("============================================================================================");
+		$display("    RECTANGLE");
+		$display("    Parameters: length = %d, width = %d", l_2, w_2);
+		$display("____________________________________________________________________________________________");
+		$display("    Perimeter = %b (%d)", P_2, P_2);
+		$display("    Area = %b (%d)", A_2, A_2);	
+		$display("    Is a square? (All 1's = True, otherwise False) = %b (%d)", IsSquare_2[15:0], IsSquare_2[15:0]);	
+		$display("============================================================================================");
+		$display("============================================================================================");
 		$display("    RECTANGULAR PRISM");
 		$display("    Parameters: length = %d, width = %d, height = %d", l_4, w_4, h_4);
 		$display("____________________________________________________________________________________________");
@@ -686,6 +747,13 @@ module TestBench();
 	end
 
 	/* Local Variables for Calculations */ 
+
+	// Rectangle
+	reg [15:0] l_2 = 16'b0000000000001010; // length = 10
+	reg [15:0] w_2 = 16'b0000000000001000; // length = 8
+	reg [31:0] P_2; // perimeter
+	reg [31:0] A_2; // area
+	reg [31:0] IsSquare_2; // All 1's = True, otherwise false
 
 	// Rectangular Prism
 	reg [15:0] l_4 = 16'b0000000000000100; // length = 4
