@@ -676,7 +676,7 @@ module TestBench();
 		$display("============================================================================================");
 		$display("    RECTANGULAR PRISM");
 		$display("    Parameters: length = %d, width = %d, height = %d", l_4, w_4, h_4);
-		$display("____________________________________________________________________________________________");
+		$display("____________________________________________________________________________________________\n");
 		$display("    Surface Area = %b (%d)", SA_4, SA_4);
 		$display("    Volume = %b (%d)", VOL_4, VOL_4);	
 		$display("    Is a cube? (All 1's = True, otherwise False) = %b (%d)", IsCube_4[15:0], IsCube_4[15:0]);	
