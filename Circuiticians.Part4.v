@@ -851,17 +851,8 @@ module TestBench();
 		/* End RECTANGULAR PRISM */
 	
 		/* SPHERE / SA = 4* pi * r^2 / V = 4 * pi * r^3 / 3 */
-		IN = 16'b0000000100111010; // 314
-		OP = 4'b0010; // Add 0 + 314
-		#60;
-		IN = 16'b0000000001100100; // 100
-		OP = 4'b0101; // Divide 314 / 100, store in pi
-		#60;
-		PI_5 = OUT;
-		OP = 4'b1111; // RESET
-		#60;
-
-		IN = PI_5; 
+		
+		IN = PI; 
 		OP = 4'b0010; // Add pi
 		#60;
 		IN = r_5;
@@ -874,13 +865,13 @@ module TestBench();
 		OP = 4'b0100; // Multiply 4 * Pi * r ^ 2
 		#60;
 		SURFACEAREA_5 = OUT;
-	    	OP = 4'b1111; // RESET
+	    OP = 4'b1111; // RESET
 		#60;
 
-	    	IN = PI_5; 
+	    IN = PI; 
 		OP = 4'b0010; // Add pi
 		#60;
-		IN = r;
+		IN = r_5;
 		OP = 4'b0100; // Multiply Pi * r
 		#60;
 		IN = r_5; 
@@ -990,5 +981,10 @@ module TestBench();
 	reg [31:0] IsCube_4; // All 1's = True, otherwise false
 	reg [31:0] lXNORw_4; // l XNOR w
 	reg [31:0] wXNORh_4; // w XNOR h
+
+	// Sphere
+	reg [15:0] r_5 = 16'b0000000000001001;
+	reg [31:0] SURFACEAREA_5;
+	reg [31:0] VOLUME_5;
 
 endmodule  
