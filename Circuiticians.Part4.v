@@ -850,6 +850,57 @@ module TestBench();
 		#60;
 		/* End RECTANGULAR PRISM */
 	
+		/* SPHERE / SA = 4* pi * r^2 / V = 4 * pi * r^3 / 3 */
+		IN = 16'b0000000100111010; // 314
+		OP = 4'b0010; // Add 0 + 314
+		#60;
+		IN = 16'b0000000001100100; // 100
+		OP = 4'b0101; // Divide 314 / 100, store in pi
+		#60;
+		PI_5 = OUT;
+		OP = 4'b1111; // RESET
+		#60;
+
+		IN = PI_5; 
+		OP = 4'b0010; // Add pi
+		#60;
+		IN = r_5;
+		OP = 4'b0100; // Multiply Pi * r
+		#60;
+		IN = r_5;
+		OP = 4'b0100; // Multiply Pi * r ^ 2
+		#60;
+		IN = 16'b0000000000000100; // 4
+		OP = 4'b0100; // Multiply 4 * Pi * r ^ 2
+		#60;
+		SURFACEAREA_5 = OUT;
+	    	OP = 4'b1111; // RESET
+		#60;
+
+	    	IN = PI_5; 
+		OP = 4'b0010; // Add pi
+		#60;
+		IN = r;
+		OP = 4'b0100; // Multiply Pi * r
+		#60;
+		IN = r_5; 
+		OP = 4'b0100; // Multiply Pi * r ^ 2
+		#60;
+		IN = r_5; 
+		OP = 4'b0100; // Multiply Pi * r ^ 3
+		#60;
+		IN = 16'b0000000000000100; // 4
+		OP = 4'b0100; // Multiply 4 * Pi * r ^ 3
+		#60;
+		IN = 16'b0000000000000011; // 3
+		OP = 4'b0101; // 4 * pi * r ^ 3 / 3
+		#60;
+		VOLUME_5 = OUT;
+		OP = 4'b1111; // RESET
+		#60;
+
+		/* End SPHERE */
+		
 		/* Display Statements */
 		$display("============================================================================================");
 		$display("    GEOMETRIC SHAPES CALCULATIONS");
@@ -888,6 +939,14 @@ module TestBench();
 		$display("    Surface Area = %d", SA_4);
 		$display("    Volume = %d", VOL_4);	
 		$display("    Is a cube? (All 1's = True, otherwise False) = %b", IsCube_4[15:0]);	
+		$display("============================================================================================");
+		
+		$display("============================================================================================");
+		$display("    SPHERE");
+		$display("    Parameters: radius = %d", r_5);
+		$display("  ________________________________________________________________________________________\n");
+		$display("    Surface Area = %d", SURFACEAREA_5);
+		$display("    Volume = %d", VOLUME_5);	
 		$display("============================================================================================");
 		/* End Display Statements */
 		$finish;
