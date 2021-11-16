@@ -864,10 +864,10 @@ module TestBench();
 		IN = PI_5; 
 		OP = 4'b0010; // Add pi
 		#60;
-		IN = r;
+		IN = r_5;
 		OP = 4'b0100; // Multiply Pi * r
 		#60;
-		IN = r;
+		IN = r_5;
 		OP = 4'b0100; // Multiply Pi * r ^ 2
 		#60;
 		IN = 16'b0000000000000100; // 4
@@ -883,10 +883,10 @@ module TestBench();
 		IN = r;
 		OP = 4'b0100; // Multiply Pi * r
 		#60;
-		IN = r; 
+		IN = r_5; 
 		OP = 4'b0100; // Multiply Pi * r ^ 2
 		#60;
-		IN = r; 
+		IN = r_5; 
 		OP = 4'b0100; // Multiply Pi * r ^ 3
 		#60;
 		IN = 16'b0000000000000100; // 4
@@ -939,6 +939,14 @@ module TestBench();
 		$display("    Surface Area = %d", SA_4);
 		$display("    Volume = %d", VOL_4);	
 		$display("    Is a cube? (All 1's = True, otherwise False) = %b", IsCube_4[15:0]);	
+		$display("============================================================================================");
+		
+		$display("============================================================================================");
+		$display("    SPHERE");
+		$display("    Parameters: radius = %d", r_5);
+		$display("  ________________________________________________________________________________________\n");
+		$display("    Surface Area = %d", SURFACEAREA_5);
+		$display("    Volume = %d", VOLUME_5);	
 		$display("============================================================================================");
 		/* End Display Statements */
 		$finish;
