@@ -11,11 +11,11 @@
 
 // Half Adder
 module HalfAdder(a, b, carry, sum);
-	input a;
-	input b;
+   input a;
+   input b;
 
-	output carry;
-	output sum;
+   output carry;
+   output sum;
 
 	reg carry;
 	reg sum;
@@ -549,15 +549,15 @@ module TestBench();
 
 	BreadBoard BB(CLK, IN, OP, OUT, ERR);
 
-	// Clock - #10 time unit cycle
-	initial begin 
-		forever begin
-		  	CLK = 0;
-			#30;
-			CLK = 1;
-			#30;
-		end
-	end
+   // Clock - #10 time unit cycle
+   initial begin 
+      forever begin
+	 CLK = 0;
+	 #30;
+	 CLK = 1;
+	 #30;
+      end
+   end
 
 	
 
@@ -751,6 +751,56 @@ module TestBench();
 		/* End CIRCLE */
 
 
+                /* CYLINDER */
+           
+                /* 	
+	         Surface Area = 2 * PI * r * (h + r)	         
+	        */
+           
+                IN = h_6;      //Add 0 to h
+                OP = 4'b0010;
+                #60;
+                IN = r_6;      //h + r
+                OP = 4'b0010;
+                #60;
+                IN = r_6;      //r * (h + r)
+                OP = 4'b0100;
+                #60;
+                IN = PI;       //PI * r * (h + r)
+                OP = 4'b0100;
+                #60;           //2 * PI * r * (h + r)
+                IN = 16'b000000000000010; 
+                OP = 4'b0100;  //Assign to SURFACE_AREA_6
+                #60;           
+                SURFACE_AREA_6 = OUT; 
+           
+                OP = 4'b1111;  //RESET
+                #60;
+                                                 	   
+		/* 
+		 Volume = PI * r * r * h
+		*/
+
+                IN = h_6;       //0 + h
+                OP = 4'b0010;
+                #60;
+                IN = r_6;       //r * h
+                OP = 4'b0100;
+                #60;
+                IN = r_6;       //r * r * h
+                OP = 4'b0100;
+                #60;
+                IN = PI;        //PI * r * r * h
+                OP = 4'b0100;
+                #60;            //Assign to VOLUME_6
+                VOLUME_6 = OUT;
+           
+                OP = 4'b1111;   //RESET
+                #60;
+
+                /* END CYLINDER */
+           
+           
 		/* RECTANGULAR PRISM */
 		/* 	
 			Surface Area = 2 * (h * l + h * w + w * l) = 2 * [(hl) + (hw) + (wl)]
@@ -865,8 +915,8 @@ module TestBench();
 		$display("============================================================================================");
 
 		$display("============================================================================================");
-      	$display("    TRIANGLE");
-      	$display("    Parameters (sides): a = %d, b = %d, c = %d", a_1, b_1, c_1);
+      	        $display("    TRIANGLE");
+      	        $display("    Parameters (sides): a = %d, b = %d, c = %d", a_1, b_1, c_1);
 		$display("  ________________________________________________________________________________________\n");
 		$display("    Perimeter = %d", PERIMETER_1);
 		$display("    AREA = %d", AREA_1);
@@ -879,6 +929,14 @@ module TestBench();
 		$display("  ________________________________________________________________________________________\n");
 		$display("    Circumference = %d", CIRCUMFERENCE_3);
 		$display("    Area = %d", AREA_3);	
+		$display("============================================================================================");
+
+                $display("============================================================================================");
+		$display("    CYLINDER");
+		$display("    Parameters: radius = %d, height = %d", r_6, h_6);
+		$display("  ________________________________________________________________________________________\n");
+		$display("    Surface Area = %d", SURFACE_AREA_6);
+		$display("    Volume = %d", VOLUME_6);	
 		$display("============================================================================================");
 
 		$display("============================================================================================");
@@ -918,7 +976,13 @@ module TestBench();
 	reg [31:0] CIRCUMFERENCE_3; // Circumference 
 	reg [31:0] PI; // pi = 314 / 100
 	reg [31:0] AREA_3; // Area
-	
+
+   	// Cylinder
+	reg [15:0] r_6 = 16'b0000000000001000; // Radius = 8
+	reg [15:0] h_6 = 16'b0000000000001010; // Height = 10
+	reg [31:0] SURFACE_AREA_6; // Area
+        reg [31:0] VOLUME_6; // Volume
+        
 	// Rectangular Prism
 	reg [15:0] l_4 = 16'b0000000000000100; // length = 4
 	reg [15:0] w_4 = 16'b0000000000001010; // width = 10
