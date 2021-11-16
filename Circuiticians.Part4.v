@@ -708,7 +708,12 @@ module TestBench();
 
 		/* CIRCLE */
 		/* 	
-			Pi = 314/100
+			Pi = 314159
+				part1 [31:0] = r * r
+				part2 [63:0] = PI * part1
+				number = part2 / 100000
+				decimal = part2 % 100000
+				$display("%d.%d", part1, part2);
 			Circumference = 2 * pi * r
 			Area = pi * r * r
 		*/
@@ -891,6 +896,55 @@ module TestBench();
 		#60;
 
 		/* End SPHERE */
+
+		/* CYLINDER */
+		
+		/* 	
+			Surface Area = 2 * PI * r * (h + r)	         
+		*/
+	
+		IN = h_6;      //Add 0 to h
+		OP = 4'b0010;
+		#60;
+		IN = r_6;      //h + r
+		OP = 4'b0010;
+		#60;
+		IN = r_6;      //r * (h + r)
+		OP = 4'b0100;
+		#60;
+		IN = PI;       //PI * r * (h + r)
+		OP = 4'b0100;
+		#60;           //2 * PI * r * (h + r)
+		IN = 16'b000000000000010; 
+		OP = 4'b0100;  //Assign to SURFACE_AREA_6
+		#60;           
+		SURFACE_AREA_6 = OUT; 
+	
+		OP = 4'b1111;  //RESET
+		#60;
+                                                 	   
+		/* 
+		 Volume = PI * r * r * h
+		*/
+
+		IN = h_6;       //0 + h
+		OP = 4'b0010;
+		#60;
+		IN = r_6;       //r * h
+		OP = 4'b0100;
+		#60;
+		IN = r_6;       //r * r * h
+		OP = 4'b0100;
+		#60;
+		IN = PI;        //PI * r * r * h
+		OP = 4'b0100;
+		#60;            //Assign to VOLUME_6
+		VOLUME_6 = OUT;
+	
+		OP = 4'b1111;   //RESET
+		#60;
+
+		/* END CYLINDER */
 		
 		/* Display Statements */
 		$display("============================================================================================");
@@ -939,6 +993,14 @@ module TestBench();
 		$display("    Surface Area = %d", SURFACEAREA_5);
 		$display("    Volume = %d", VOLUME_5);	
 		$display("============================================================================================");
+
+		$display("============================================================================================");
+		$display("    CYLINDER");
+		$display("    Parameters: radius = %d, height = %d", r_6, h_6);
+		$display("  ________________________________________________________________________________________\n");
+		$display("    Surface Area = %d", SURFACE_AREA_6);
+		$display("    Volume = %d", VOLUME_6);	
+		$display("============================================================================================");
 		/* End Display Statements */
 		$finish;
 	end
@@ -966,7 +1028,7 @@ module TestBench();
 	// Circle
 	reg [15:0] r_3 = 16'b0000000000001000; // Radius = 8
 	reg [31:0] CIRCUMFERENCE_3; // Circumference 
-	reg [31:0] PI; // pi = 314 / 100
+	reg [15:0] PI; // pi = 314 / 100
 	reg [31:0] AREA_3; // Area
 	
 	// Rectangular Prism
@@ -986,5 +1048,11 @@ module TestBench();
 	reg [15:0] r_5 = 16'b0000000000001001;
 	reg [31:0] SURFACEAREA_5;
 	reg [31:0] VOLUME_5;
+
+	// Cylinder
+	reg [15:0] r_6 = 16'b0000000000010110;
+	reg [15:0] h_6 = 16'b0000000000101111;
+	reg [31:0] VOLUME_6;
+	reg [31:0] SURFACE_AREA_6;
 
 endmodule  
