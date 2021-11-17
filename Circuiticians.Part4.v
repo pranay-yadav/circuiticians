@@ -978,10 +978,8 @@ module TestBench();
 
 		/* CYLINDER */
 		
-		/* 	
-			Surface Area = 2 * PI * r * (h + r)	         
-		*/
-	
+		// Surface Area INT part         
+		
 		IN = h_6;      //Add 0 to h
 		OP = 4'b0010;
 		#60;
@@ -993,19 +991,42 @@ module TestBench();
 		#60;
 		IN = PI;       //PI * r * (h + r)
 		OP = 4'b0100;
-		#60;           //2 * PI * r * (h + r)
+		#60;        
 		IN = 16'b000000000000010; 
-		OP = 4'b0100;  //Assign to SURFACE_AREA_6
+		OP = 4'b0100;  //2 * PI * r * (h + r)
 		#60;           
-		SURFACE_AREA_6 = OUT; 
-	
+		IN = hundred;
+		OP = 4'b0101;  // Divide by 100
+		#60;
+		SA_6_INT = OUT;  
+		OP = 4'b1111;  //RESET
+		#60;
+
+		// Surface Area DEC part         
+		
+		IN = h_6;      //Add 0 to h
+		OP = 4'b0010;
+		#60;
+		IN = r_6;      //h + r
+		OP = 4'b0010;
+		#60;
+		IN = r_6;      //r * (h + r)
+		OP = 4'b0100;
+		#60;
+		IN = PI;       //PI * r * (h + r)
+		OP = 4'b0100;
+		#60;        
+		IN = 16'b000000000000010; 
+		OP = 4'b0100;  //2 * PI * r * (h + r)
+		#60;           
+		IN = hundred;
+		OP = 4'b0110;  // Mod by 100
+		#60;
+		SA_6_DEC = OUT;  
 		OP = 4'b1111;  //RESET
 		#60;
                                                  	   
-		/* 
-		 Volume = PI * r * r * h
-		*/
-
+		// Volume INT part
 		IN = h_6;       //0 + h
 		OP = 4'b0010;
 		#60;
@@ -1017,9 +1038,31 @@ module TestBench();
 		#60;
 		IN = PI;        //PI * r * r * h
 		OP = 4'b0100;
-		#60;            //Assign to VOLUME_6
-		VOLUME_6 = OUT;
-	
+		#60;   
+		IN = hundred;
+		OP = 4'b0101;  // Divide by 100
+		#60        
+		VOL_6_INT = OUT;  
+		OP = 4'b1111;   //RESET
+		#60;
+
+		// Volume DEC part
+		IN = h_6;       //0 + h
+		OP = 4'b0010;
+		#60;
+		IN = r_6;       //r * h
+		OP = 4'b0100;
+		#60;
+		IN = r_6;       //r * r * h
+		OP = 4'b0100;
+		#60;
+		IN = PI;        //PI * r * r * h
+		OP = 4'b0100;
+		#60;   
+		IN = hundred;
+		OP = 4'b0110;  // Mod by 100
+		#60        
+		VOL_6_DEC = OUT;  
 		OP = 4'b1111;   //RESET
 		#60;
 
@@ -1077,8 +1120,8 @@ module TestBench();
 		$display("    CYLINDER");
 		$display("    Parameters: radius = %1d, height = %1d", r_6, h_6);
 		$display("  ________________________________________________________________________________________\n");
-		$display("    Surface Area = %1d", SURFACE_AREA_6);
-		$display("    Volume = %1d", VOLUME_6);	
+		$display("    Surface Area = %1d.%1d", SA_6_INT, SA_6_DEC);
+		$display("    Volume = %1d.%1d", VOL_6_INT, VOL_6_DEC);	
 		$display("============================================================================================");
 		/* End Display Statements */
 		$finish;
@@ -1099,7 +1142,7 @@ module TestBench();
 
 	// Rectangle
 	reg [15:0] l_2 = 16'b0000000000001010; // length = 10
-	reg [15:0] w_2 = 16'b0000000000001000; // length = 8
+	reg [15:0] w_2 = 16'b0000000000001000; // width = 8
 	reg [31:0] P_2; // perimeter
 	reg [31:0] A_2; // area
 	reg [31:0] IsSquare_2; // All 1's = True, otherwise false
@@ -1132,15 +1175,18 @@ module TestBench();
 	reg [31:0] VOL_5_DEC; // Volume Decimal Part
 
 	// Cylinder
-	reg [15:0] r_6 = 16'b0000000000010110;
-	reg [15:0] h_6 = 16'b0000000000101111;
-	reg [31:0] VOLUME_6;
-	reg [31:0] SURFACE_AREA_6;
+	reg [15:0] r_6 = 16'b0000000000000011; // radius = 3
+	reg [15:0] h_6 = 16'b0000000000000110; // height = 6
+	reg [31:0] VOL_6_INT; // Volume INT part
+	reg [31:0] VOL_6_DEC; // Volume Decimal part
+	reg [31:0] SA_6_INT; // Surface Area INT part
+	reg [31:0] SA_6_DEC; // Surface Area DEC part
 
 	
 	/* Pi Constants
 	    Pi is restricted to 314 / 100 because any larger would be too large
-	    to accurately calculate for our 16-bit input ALU due to truncation of upper 16 bits 
+	    to accurately calculate for our 16-bit input ALU due to truncation 
+		of upper 16 bits on the Feedback (FBK) line.
 	*/
 	reg [15:0] PI = 16'b0000000100111010; // pi = 3.14 * 100 = 31415
 	reg [15:0] hundred = 16'b0000000001100100; // 100
