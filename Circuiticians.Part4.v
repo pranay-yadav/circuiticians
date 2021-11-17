@@ -958,7 +958,7 @@ module TestBench();
 
 	// Rectangle
 	reg [15:0] l_2 = 16'b0000000000001010; // length = 10
-	reg [15:0] w_2 = 16'b0000000000001000; // length = 8
+	reg [15:0] w_2 = 16'b0000000000001000; // width = 8
 	reg [31:0] P_2; // perimeter
 	reg [31:0] A_2; // area
 	reg [31:0] IsSquare_2; // All 1's = True, otherwise false
