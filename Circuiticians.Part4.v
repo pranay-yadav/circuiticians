@@ -559,9 +559,71 @@ module TestBench();
 		end
 	end
 
-	
+	/* Local Variables for Calculations */ 
 
-	// Stimulus
+	// Triangle
+	reg [15:0] a_1 = 16'b0000000000000011; // a = 3
+  	reg [15:0] b_1 = 16'b0000000000000100; // b = 4
+	reg [15:0] c_1 = 16'b0000000000000101; // c = 5
+	reg [31:0] PERIMETER_1; 
+	reg [31:0] AREA_1; // area
+	reg [31:0] a2_1;
+	reg [31:0] b2_1;
+	reg [31:0] a2b2_1; // a^2 + b^2;
+	reg [31:0] IsRight_1; // All 1's = True, otherwise false
+
+	// Rectangle
+	reg [15:0] l_2 = 16'b0000000000001010; // length = 10
+	reg [15:0] w_2 = 16'b0000000000001000; // width = 8
+	reg [31:0] P_2; // perimeter
+	reg [31:0] A_2; // area
+	reg [31:0] IsSquare_2; // All 1's = True, otherwise false
+
+	// Circle
+	reg [15:0] r_3 = 16'b0000000000001000; // Radius = 8
+	reg [31:0] CIRC_3_INT; // Circumference INTeger part
+	reg [31:0] CIRC_3_DEC; // Circumference DECimal part
+	reg [31:0] AREA_3_INT; // Area INTeger part
+	reg [31:0] AREA_3_DEC; // Area DECimal part
+	
+	// Rectangular Prism
+	reg [15:0] l_4 = 16'b0000000000000100; // length = 4
+	reg [15:0] w_4 = 16'b0000000000001010; // width = 10
+	reg [15:0] h_4 = 16'b0000000000000101; // height = 5
+	reg [31:0] SA_4; // surface area
+	reg [31:0] VOL_4; // volume
+	reg [31:0] hl_4; // h * l 
+	reg [31:0] hw_4; // h * w
+	reg [31:0] wl_4; // w * l
+	reg [31:0] IsCube_4; // All 1's = True, otherwise false
+	reg [31:0] lXNORw_4; // l XNOR w
+	reg [31:0] wXNORh_4; // w XNOR h
+
+	// Sphere
+	reg [15:0] r_5 = 16'b0000000000000101; // radius = 5
+	reg [31:0] SA_5_INT; // Surface Area INT part
+	reg [31:0] SA_5_DEC; // Surface Area DECimal part
+	reg [31:0] VOL_5_INT; // Volume INT part
+	reg [31:0] VOL_5_DEC; // Volume Decimal Part
+
+	// Cylinder
+	reg [15:0] r_6 = 16'b0000000000000011; // radius = 3
+	reg [15:0] h_6 = 16'b0000000000000110; // height = 6
+	reg [31:0] VOL_6_INT; // Volume INT part
+	reg [31:0] VOL_6_DEC; // Volume Decimal part
+	reg [31:0] SA_6_INT; // Surface Area INT part
+	reg [31:0] SA_6_DEC; // Surface Area DEC part
+
+	
+	/* Pi Constants
+	    Pi is restricted to 314 / 100 because any larger would be too large
+	    to accurately calculate for our 16-bit input ALU due to truncation 
+		of upper 16 bits on the Feedback (FBK) line.
+	*/
+	reg [15:0] PI = 16'b0000000100111010; // pi = 3.14 * 100 = 314
+	reg [15:0] hundred = 16'b0000000001100100; // 100
+
+	// Stimulus Thread
 	initial begin
 		/* Initialize Circuit */
 		#13 // Allow clock to start, stagger displays.
@@ -1126,69 +1188,5 @@ module TestBench();
 		/* End Display Statements */
 		$finish;
 	end
-
-	/* Local Variables for Calculations */ 
-
-	// Triangle
-	reg [15:0] a_1 = 16'b0000000000000011; // a = 3
-  	reg [15:0] b_1 = 16'b0000000000000100; // b = 4
-	reg [15:0] c_1 = 16'b0000000000000101; // c = 5
-	reg [31:0] PERIMETER_1; 
-	reg [31:0] AREA_1; // area
-	reg [31:0] a2_1;
-	reg [31:0] b2_1;
-	reg [31:0] a2b2_1; // a^2 + b^2;
-	reg [31:0] IsRight_1; // All 1's = True, otherwise false
-
-	// Rectangle
-	reg [15:0] l_2 = 16'b0000000000001010; // length = 10
-	reg [15:0] w_2 = 16'b0000000000001000; // width = 8
-	reg [31:0] P_2; // perimeter
-	reg [31:0] A_2; // area
-	reg [31:0] IsSquare_2; // All 1's = True, otherwise false
-
-	// Circle
-	reg [15:0] r_3 = 16'b0000000000001000; // Radius = 8
-	reg [31:0] CIRC_3_INT; // Circumference INTeger part
-	reg [31:0] CIRC_3_DEC; // Circumference DECimal part
-	reg [31:0] AREA_3_INT; // Area INTeger part
-	reg [31:0] AREA_3_DEC; // Area DECimal part
-	
-	// Rectangular Prism
-	reg [15:0] l_4 = 16'b0000000000000100; // length = 4
-	reg [15:0] w_4 = 16'b0000000000001010; // width = 10
-	reg [15:0] h_4 = 16'b0000000000000101; // height = 5
-	reg [31:0] SA_4; // surface area
-	reg [31:0] VOL_4; // volume
-	reg [31:0] hl_4; // h * l 
-	reg [31:0] hw_4; // h * w
-	reg [31:0] wl_4; // w * l
-	reg [31:0] IsCube_4; // All 1's = True, otherwise false
-	reg [31:0] lXNORw_4; // l XNOR w
-	reg [31:0] wXNORh_4; // w XNOR h
-
-	// Sphere
-	reg [15:0] r_5 = 16'b0000000000000101; // radius = 5
-	reg [31:0] SA_5_INT; // Surface Area INT part
-	reg [31:0] SA_5_DEC; // Surface Area DECimal part
-	reg [31:0] VOL_5_INT; // Volume INT part
-	reg [31:0] VOL_5_DEC; // Volume Decimal Part
-
-	// Cylinder
-	reg [15:0] r_6 = 16'b0000000000000011; // radius = 3
-	reg [15:0] h_6 = 16'b0000000000000110; // height = 6
-	reg [31:0] VOL_6_INT; // Volume INT part
-	reg [31:0] VOL_6_DEC; // Volume Decimal part
-	reg [31:0] SA_6_INT; // Surface Area INT part
-	reg [31:0] SA_6_DEC; // Surface Area DEC part
-
-	
-	/* Pi Constants
-	    Pi is restricted to 314 / 100 because any larger would be too large
-	    to accurately calculate for our 16-bit input ALU due to truncation 
-		of upper 16 bits on the Feedback (FBK) line.
-	*/
-	reg [15:0] PI = 16'b0000000100111010; // pi = 3.14 * 100 = 31415
-	reg [15:0] hundred = 16'b0000000001100100; // 100
 
 endmodule  
