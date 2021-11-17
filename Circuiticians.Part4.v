@@ -882,6 +882,7 @@ module TestBench();
 	
 		/* SPHERE / SA = 4* pi * r^2 / V = 4 * pi * r^3 / 3 */
 		
+		// SA Int part
 		IN = PI; 
 		OP = 4'b0010; // Add pi
 		#60;
@@ -894,10 +895,34 @@ module TestBench();
 		IN = 16'b0000000000000100; // 4
 		OP = 4'b0100; // Multiply 4 * Pi * r ^ 2
 		#60;
-		SURFACEAREA_5 = OUT;
+		IN = hundred;
+		OP = 4'b0101; // Divide by 100
+		#60
+		SA_5_INT = OUT;
 	    OP = 4'b1111; // RESET
 		#60;
 
+		// SA Int part
+		IN = PI; 
+		OP = 4'b0010; // Add pi
+		#60;
+		IN = r_5;
+		OP = 4'b0100; // Multiply Pi * r
+		#60;
+		IN = r_5;
+		OP = 4'b0100; // Multiply Pi * r ^ 2
+		#60;
+		IN = 16'b0000000000000100; // 4
+		OP = 4'b0100; // Multiply 4 * Pi * r ^ 2
+		#60;
+		IN = hundred;
+		OP = 4'b0110; // Mod by 100
+		#60
+		SA_5_DEC = OUT;
+	    OP = 4'b1111; // RESET
+		#60;
+
+		// VOL INT part
 	    IN = PI; 
 		OP = 4'b0010; // Add pi
 		#60;
@@ -910,13 +935,42 @@ module TestBench();
 		IN = r_5; 
 		OP = 4'b0100; // Multiply Pi * r ^ 3
 		#60;
+		IN = 16'b0000000000000011; // 3
+		OP = 4'b0101; // 4 * pi * r ^ 3 / 3
+		#60;
 		IN = 16'b0000000000000100; // 4
 		OP = 4'b0100; // Multiply 4 * Pi * r ^ 3
+		#60;
+		IN = hundred;
+		OP = 4'b0101; // Divide by 100
+		#60
+		VOL_5_INT = OUT;
+		OP = 4'b1111; // RESET
+		#60;
+
+		// VOL DEC part
+	    IN = PI; 
+		OP = 4'b0010; // Add pi
+		#60;
+		IN = r_5;
+		OP = 4'b0100; // Multiply Pi * r
+		#60;
+		IN = r_5; 
+		OP = 4'b0100; // Multiply Pi * r ^ 2
+		#60;
+		IN = r_5; 
+		OP = 4'b0100; // Multiply Pi * r ^ 3
 		#60;
 		IN = 16'b0000000000000011; // 3
 		OP = 4'b0101; // 4 * pi * r ^ 3 / 3
 		#60;
-		VOLUME_5 = OUT;
+		IN = 16'b0000000000000100; // 4
+		OP = 4'b0100; // Multiply 4 * Pi * r ^ 3
+		#60;
+		IN = hundred;
+		OP = 4'b0110; // Mod by 100
+		#60
+		VOL_5_DEC = OUT;
 		OP = 4'b1111; // RESET
 		#60;
 
@@ -1015,8 +1069,8 @@ module TestBench();
 		$display("    SPHERE");
 		$display("    Parameters: radius = %1d", r_5);
 		$display("  ________________________________________________________________________________________\n");
-		$display("    Surface Area = %1d", SURFACEAREA_5);
-		$display("    Volume = %1d", VOLUME_5);	
+		$display("    Surface Area = %1d.%1d", SA_5_INT, SA_5_DEC);
+		$display("    Volume = %1d.%1d", VOL_5_INT, VOL_5_DEC);	
 		$display("============================================================================================");
 
 		$display("============================================================================================");
@@ -1071,9 +1125,11 @@ module TestBench();
 	reg [31:0] wXNORh_4; // w XNOR h
 
 	// Sphere
-	reg [15:0] r_5 = 16'b0000000000001001;
-	reg [31:0] SURFACEAREA_5;
-	reg [31:0] VOLUME_5;
+	reg [15:0] r_5 = 16'b0000000000000101; // radius = 5
+	reg [31:0] SA_5_INT; // Surface Area INT part
+	reg [31:0] SA_5_DEC; // Surface Area DECimal part
+	reg [31:0] VOL_5_INT; // Volume INT part
+	reg [31:0] VOL_5_DEC; // Volume Decimal Part
 
 	// Cylinder
 	reg [15:0] r_6 = 16'b0000000000010110;
