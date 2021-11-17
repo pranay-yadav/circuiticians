@@ -708,25 +708,10 @@ module TestBench();
 
 		/* CIRCLE */
 		/* 	
-			Pi = 314159
-				part1 [31:0] = r * r
-				part2 [63:0] = PI * part1
-				number = part2 / 100000
-				decimal = part2 % 100000
-				$display("%d.%d", part1, part2);
 			Circumference = 2 * pi * r
 			Area = pi * r * r
 		*/
-		IN = 16'b0000000100111010; // 314
-		OP = 4'b0010; // Add 0 + 314
-		#60;
-		IN = 16'b0000000001100100; // 100
-		OP = 4'b0101; // Divide 314 / 100, store in pi
-		#60;
-		PI = OUT;
-		OP = 4'b1111; // RESET
-		#60;
-		
+		// Circumference INT Part
 		IN = PI; 
 		OP = 4'b0010; // Add 0 + Pi
 		#60;
@@ -736,10 +721,31 @@ module TestBench();
 		IN = 16'b0000000000000010; // 2
 		OP = 4'b0100; // Multiply 2 * Pi * r
 		#60;
-		CIRCUMFERENCE_3 = OUT;
+		IN = hundred;
+		OP = 4'b0101; // Divide by 100
+		#60
+		CIRC_3_INT = OUT;
 		OP = 4'b1111; // RESET
 		#60;
 
+		// Circumference Decimal part
+		IN = PI; 
+		OP = 4'b0010; // Add 0 + Pi
+		#60;
+		IN = r_3;
+		OP = 4'b0100; // Multiply Pi * r
+		#60;
+		IN = 16'b0000000000000010; // 2
+		OP = 4'b0100; // Multiply 2 * Pi * r
+		#60;
+		IN = hundred;
+		OP = 4'b0110; // Mod by 100
+		#60
+		CIRC_3_DEC = OUT;
+		OP = 4'b1111; // RESET
+		#60;
+
+		// AREA INT part
         IN = PI; 
 		OP = 4'b0010; // Add 0 + Pi
 		#60;
@@ -749,7 +755,26 @@ module TestBench();
 		IN = r_3; 
 		OP = 4'b0100; // Multiply Pi * r * r
 		#60;
-		AREA_3 = OUT;
+		IN = hundred;
+		OP = 4'b0101; // Divide by 100
+		#60
+		AREA_3_INT = OUT;
+		OP = 4'b1111; // RESET
+		#60;
+		// AREA DEC part
+		IN = PI; 
+		OP = 4'b0010; // Add 0 + Pi
+		#60;
+		IN = r_3;
+		OP = 4'b0100; // Multiply Pi * r
+		#60;
+		IN = r_3; 
+		OP = 4'b0100; // Multiply Pi * r * r
+		#60;
+		IN = hundred;
+		OP = 4'b0110; // Mod by 100
+		#60
+		AREA_3_DEC = OUT;
 		OP = 4'b1111; // RESET
 		#60;
 	
@@ -953,53 +978,53 @@ module TestBench();
 
 		$display("============================================================================================");
 		$display("    RECTANGLE");
-		$display("    Parameters: length = %d, width = %d", l_2, w_2);
+		$display("    Parameters: length = %1d, width = %1d", l_2, w_2);
 		$display("  ________________________________________________________________________________________\n");
-		$display("    Perimeter = %d", P_2);
-		$display("    Area = %d", A_2);	
+		$display("    Perimeter = %1d", P_2);
+		$display("    Area = %1d", A_2);	
 		$display("    Is a square? (All 1's = True, otherwise False) = %b", IsSquare_2[15:0]);	
 		$display("============================================================================================");
 
 		$display("============================================================================================");
       	$display("    TRIANGLE");
-      	$display("    Parameters (sides): a = %d, b = %d, c = %d", a_1, b_1, c_1);
+      	$display("    Parameters (sides): a = %1d, b = %1d, c = %1d", a_1, b_1, c_1);
 		$display("  ________________________________________________________________________________________\n");
-		$display("    Perimeter = %d", PERIMETER_1);
-		$display("    AREA = %d", AREA_1);
+		$display("    Perimeter = %1d", PERIMETER_1);
+		$display("    AREA = %1d", AREA_1);
 		$display("    Is Right Triangle? (All 1's = True, otherwise False): %b", IsRight_1[15:0]);
 		$display("============================================================================================");
 
 		$display("============================================================================================");
 		$display("    CIRCLE");
-		$display("    Parameters: radius = %d", r_3);
+		$display("    Parameters: radius = %1d", r_3);
 		$display("  ________________________________________________________________________________________\n");
-		$display("    Circumference = %d", CIRCUMFERENCE_3);
-		$display("    Area = %d", AREA_3);	
+		$display("    Circumference = %1d.%1d", CIRC_3_INT, CIRC_3_DEC);
+		$display("    Area = %1d.%1d", AREA_3_INT, AREA_3_DEC);	
 		$display("============================================================================================");
 
 		$display("============================================================================================");
 		$display("    RECTANGULAR PRISM");
-		$display("    Parameters: length = %d, width = %d, height = %d", l_4, w_4, h_4);
+		$display("    Parameters: length = %1d, width = %1d, height = %1d", l_4, w_4, h_4);
 		$display("  ________________________________________________________________________________________\n");
-		$display("    Surface Area = %d", SA_4);
-		$display("    Volume = %d", VOL_4);	
+		$display("    Surface Area = %1d", SA_4);
+		$display("    Volume = %1d", VOL_4);	
 		$display("    Is a cube? (All 1's = True, otherwise False) = %b", IsCube_4[15:0]);	
 		$display("============================================================================================");
 		
 		$display("============================================================================================");
 		$display("    SPHERE");
-		$display("    Parameters: radius = %d", r_5);
+		$display("    Parameters: radius = %1d", r_5);
 		$display("  ________________________________________________________________________________________\n");
-		$display("    Surface Area = %d", SURFACEAREA_5);
-		$display("    Volume = %d", VOLUME_5);	
+		$display("    Surface Area = %1d", SURFACEAREA_5);
+		$display("    Volume = %1d", VOLUME_5);	
 		$display("============================================================================================");
 
 		$display("============================================================================================");
 		$display("    CYLINDER");
-		$display("    Parameters: radius = %d, height = %d", r_6, h_6);
+		$display("    Parameters: radius = %1d, height = %1d", r_6, h_6);
 		$display("  ________________________________________________________________________________________\n");
-		$display("    Surface Area = %d", SURFACE_AREA_6);
-		$display("    Volume = %d", VOLUME_6);	
+		$display("    Surface Area = %1d", SURFACE_AREA_6);
+		$display("    Volume = %1d", VOLUME_6);	
 		$display("============================================================================================");
 		/* End Display Statements */
 		$finish;
@@ -1027,9 +1052,10 @@ module TestBench();
 
 	// Circle
 	reg [15:0] r_3 = 16'b0000000000001000; // Radius = 8
-	reg [31:0] CIRCUMFERENCE_3; // Circumference 
-	reg [15:0] PI; // pi = 314 / 100
-	reg [31:0] AREA_3; // Area
+	reg [31:0] CIRC_3_INT; // Circumference INTeger part
+	reg [31:0] CIRC_3_DEC; // Circumference DECimal part
+	reg [31:0] AREA_3_INT; // Area INTeger part
+	reg [31:0] AREA_3_DEC; // Area DECimal part
 	
 	// Rectangular Prism
 	reg [15:0] l_4 = 16'b0000000000000100; // length = 4
@@ -1054,5 +1080,13 @@ module TestBench();
 	reg [15:0] h_6 = 16'b0000000000101111;
 	reg [31:0] VOLUME_6;
 	reg [31:0] SURFACE_AREA_6;
+
+	
+	/* Pi Constants
+	    Pi is restricted to 314 / 100 because any larger would be too large
+	    to accurately calculate for our 16-bit input ALU due to truncation of upper 16 bits 
+	*/
+	reg [15:0] PI = 16'b0000000100111010; // pi = 3.14 * 100 = 31415
+	reg [15:0] hundred = 16'b0000000001100100; // 100
 
 endmodule  
