@@ -1146,7 +1146,7 @@ module TestBench();
 
 		$display("============================================================================================");
       	$display("    TRIANGLE");
-      	$display("    Parameters (sides): a = %1d, b = %1d, c = %1d", a_1, b_1, c_1);
+      	$display("    Parameters: base = %1d, height = %1d, third side (hypotenuse if right triangle) = %1d", a_1, b_1, c_1);
 		$display("  ________________________________________________________________________________________\n");
 		$display("    Perimeter = %1d", PERIMETER_1);
 		$display("    AREA = %1d", AREA_1);
