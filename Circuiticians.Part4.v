@@ -549,7 +549,7 @@ module TestBench();
 
 	BreadBoard BB(CLK, IN, OP, OUT, ERR);
 
-	// Clock - #10 time unit cycle
+	// Clock - #60 time unit cycle
 	initial begin 
 		forever begin
 		  	CLK = 0;
